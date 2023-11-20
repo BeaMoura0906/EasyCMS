@@ -32,9 +32,9 @@
         </nav>
     </header>
 
-    <main class="container">
+    <main class="container-fluid">
         <div class="row">
-            <div class="col-12">
+            <div class="col-12 p-0">
                 <?php
                     $controllerPath = 'EasyCMS\\src\\Controller\\';
 

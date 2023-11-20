@@ -16,8 +16,9 @@ abstract class Controller
 
     abstract public function defaultAction();
 
-    protected function render($view)
+    protected function render($view, $data=[])
     {   
+        extract( $data );
         $fileNameView = 'src/View/' . ucfirst( $view ) . 'View.php';
         if (file_exists($fileNameView)) {
             require_once $fileNameView;

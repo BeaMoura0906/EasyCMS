@@ -21,6 +21,10 @@ class IndexController extends Controller
 
     public function loginAction()
     {
-        echo 'Test loginAction()';
+        $loginSpace = true;
+        $data = [
+            'loginSpace' => $loginSpace
+        ];
+        $this->render('index', $data);
     }
 }
