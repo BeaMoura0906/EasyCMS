@@ -27,4 +27,29 @@ class IndexController extends Controller
         ];
         $this->render('index', $data);
     }
+
+    public function verifyLoginAction()
+    {
+        $loginSpace = true;
+        $data = [
+            'loginSpace' => $loginSpace,
+            'message' => [
+                'type' => 'warning',
+                'message' => 'Erreur lors de la connexion !' 
+            ]
+        ];
+
+        $login = $_REQUEST['login'];
+        $password = $_REQUEST['password'];
+
+        if( isset($_REQUEST['login']) && isset($_REQUEST['password']) ){
+            $userId = $this->_manager->loginVerify($login, $password);
+            if( $userId ){
+                $_SESSION['userId'] = $userId;
+                $this->render('dashboard', []);
+            }
+        }
+
+        $this->render('index', $data);
+    }
 }
