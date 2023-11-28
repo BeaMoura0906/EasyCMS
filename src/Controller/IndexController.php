@@ -30,26 +30,34 @@ class IndexController extends Controller
 
     public function verifyLoginAction()
     {
-        $loginSpace = true;
-        $data = [
-            'loginSpace' => $loginSpace,
-            'message' => [
-                'type' => 'warning',
-                'message' => 'Erreur lors de la connexion !' 
-            ]
-        ];
-
+        
         $login = $_REQUEST['login'];
         $password = $_REQUEST['password'];
 
         if( isset($_REQUEST['login']) && isset($_REQUEST['password']) ){
             $userId = $this->_manager->loginVerify($login, $password);
             if( $userId ){
-                $_SESSION['userId'] = $userId;
-                $this->render('dashboard', []);
+                $_SESSION['userId'] = $userId;              
+                $this->render('index');
             }
+        } else {
+            $loginSpace = true;
+            $data = [
+                'loginSpace' => $loginSpace,
+                'message' => [
+                    'type' => 'warning',
+                    'message' => 'Erreur lors de la connexion !' 
+                ]
+            ];
+            $this->render('index', $data);
         }
 
-        $this->render('index', $data);
+        
+    }
+
+    public function logoutAction()
+    {
+        session_destroy();
+        $this->render('index');
     }
 }

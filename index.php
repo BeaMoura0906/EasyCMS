@@ -1,3 +1,9 @@
+<?php
+
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,9 +29,25 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                    <a class="nav-link" href="index.php?controller=index&action=login">Se connecter</a>
-                    </li>
+                    
+                    <?php
+                    if( isset( $_SESSION['userId'] ) ) {
+                    ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?controller=profile"><strong>Tableau de bord</strong></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?controller=index&action=logout">Se déconnecter</a>
+                        </li>
+                    <?php
+                    } else {
+                    ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?controller=index&action=login">Se connecter</a>
+                        </li>
+                    <?php
+                    }
+                    ?>
                 </ul>
                 </div>
             </div>

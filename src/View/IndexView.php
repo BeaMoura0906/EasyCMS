@@ -1,5 +1,5 @@
 <?php
-if(isset($loginSpace)) {
+if(isset($loginSpace) && empty( $_SESSION['userId'] )) {
 ?>
 
 <div class="container-fluid text-center mt-5">
