@@ -11,8 +11,13 @@ class ProfileController extends Controller
 
     public function defaultAction()
     {
-        
-        $this->render('profile');
+        if( isset($_SESSION['userId'] ) ){
+            $userId = $_SESSION['userId'];
+            $data = [
+                'userId' => $userId
+            ]; 
+            $this->render('profile', $data);
+        }
         
     }
 }
