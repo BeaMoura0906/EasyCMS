@@ -2,6 +2,8 @@
 
 namespace EasyCMS\src\Model;
 
+use EasyCMS\src\Classes\dbConnect;
+
 class Manager 
 {
     private $_dsn = 'mysql:host=localhost;dbname=';
@@ -9,8 +11,8 @@ class Manager
     private $_dblogin;
     private $_dbpassword; 
 
-    protected $_db;
-
+    protected $dbManager;
+    
     public function __construct()
     {
 
@@ -26,16 +28,11 @@ class Manager
 
         $this->_dsn .= $this->_dbname . ';charset=utf8';
         
-        // Connexion à la base de données
-        try
-        {
-            $this->_db = new \PDO($this->_dsn, $this->_dblogin, $this->_dbpassword);
-            $this->_db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
-        }
-        catch(\Exception $e)
-        {
-            die('Erreur : '.$e->getMessage());
-        }
+        $this->dbManager = dbConnect::getDb(
+            $this->_dsn, 
+            $this->_dblogin, 
+            $this->_dbpassword
+        );
     }
 
 }

@@ -31,7 +31,7 @@ class Page
 
     private function convertSnakeCaseToCamelCase($snakeCase)
     {
-        return lcfirst(str_replace('_', '', ucwords($snakeCase, '_')));
+        return str_replace('_', '', ucwords($snakeCase, '_'));
     }
 
     public function getId(): ?int
@@ -74,9 +74,11 @@ class Page
         $this->isHomePage = $isHomePage;
     }
 
-    public function getCreationDate(): ?\DateTime
+    public function getCreationDate(): ?string
     {
-        return new \DateTime($this->creationDate);
+        $dateTimeCreationDate = new \DateTime($this->creationDate);
+        $creationDate = $dateTimeCreationDate->format('Y-m-d \à H:i:s');
+        return $creationDate;
     }
 
     public function setCreationDate($creationDate)
@@ -84,9 +86,11 @@ class Page
         $this->creationDate = $creationDate;
     }
 
-    public function getModificationDate(): ?\DateTime
+    public function getModificationDate(): ?string
     {
-        return new \DateTime($this->modificationDate);
+        $dateTimeModificationDate = new \DateTime($this->modificationDate);
+        $modificationDate = $dateTimeModificationDate->format('Y-m-d \à H:i:s');
+        return $modificationDate;
     }
 
     public function setModificationDate($modificationDate)
@@ -113,6 +117,8 @@ class Page
     {
         $this->idUser = $idUser;
     }
+
+    
 
 }
 

@@ -39,11 +39,9 @@ class IndexController extends Controller
 
     public function verifyLoginAction()
     {
-        
-        $login = $_REQUEST['login'];
-        $password = $_REQUEST['password'];
-
         if( isset($_REQUEST['login']) && isset($_REQUEST['password']) ){
+            $login = $_REQUEST['login'];
+            $password = $_REQUEST['password'];
             $userId = $this->_manager->loginVerify($login, $password);
             if( $userId ){
                 $_SESSION['userId'] = $userId;
