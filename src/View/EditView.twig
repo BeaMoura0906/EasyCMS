@@ -23,7 +23,7 @@
             <div class="col-4">
                 <div class="card m-2">
                     <div class="card-body bg-primary-subtle">
-                        <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="">Éditer les contenus</a></h5>
+                        <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=editContent">Éditer les contenus</a></h5>
                     </div>
                 </div>
             </div>
@@ -69,9 +69,6 @@
                         <div class="col-md-6">
                             <label for="pageNameId" class="form-label">Nom de la page</label>
                             <input type="text" class="form-control" id="pageNameId" name="pageName" value="{{ selectedPage.getPageName }}" required>
-                            <div class="valid-feedback">
-                            Looks good!
-                            </div>
                         </div>
                         <div class="col-md-4">
                             <label for="isHomePageId" class="form-label">Page d'accueil</label>
@@ -83,9 +80,6 @@
                                     <option>Oui</option>
                                 {% endif %}
                             </select>
-                            <div class="invalid-feedback">
-                            Please select a valid response.
-                            </div>
                         </div>
                         <div class="col-12">
                             <p class="text-secondary">Page créée le {{ selectedPage.getCreationDate }}</p>
@@ -125,9 +119,6 @@
                         <div class="col-md-6">
                             <label for="pageNameId" class="form-label">Nom de la page</label>
                             <input type="text" class="form-control" id="pageNameId" name="pageName" value="" required>
-                            <div class="valid-feedback">
-                            Looks good!
-                            </div>
                         </div>
                         <div class="col-md-4">
                             <label for="isHomePageId" class="form-label">Page d'accueil</label>
@@ -135,9 +126,6 @@
                                 <option selected>Non</option>
                                 <option>Oui</option>
                             </select>
-                            <div class="invalid-feedback">
-                            Please select a valid response.
-                            </div>
                         </div>
                         <div class="col-12">                           
                             <div class="form-check">
@@ -158,6 +146,138 @@
             </div>
 
         {% endif %}
+
+        {% if listContents is defined %}
+            <div class="row text-start mt-3">
+                <div class="col-4 p-2">
+                    <h5 class="p-2">Selectionnez le contenu à modifier</h5>
+                    <ul class="list-group">
+                        {% for content in listContents %}
+                            <li class="list-group-item"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateContent&contentId={{ content.getId }}">{{ content.getContentName }}</a></li>
+                        {% endfor %}
+                        <li class="list-group-item bg-body-tertiary"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createContent">Créer un nouveau contenu</a></li>
+                    </ul>
+                </div>
+
+                {% if selectedContent is defined %}
+                    <div class="col-8 p-2">
+                        <h5 class="p-2">Modifier {{ selectedContent.getContentName }}</h5>
+                        {% if message is defined %}                        
+                        <div class="alert alert-{{ message.type }} alert-dismissible fade show" role="alert">
+                            {{ message.message }}
+                        </div>                        
+                        {% endif %}
+                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        {% if selectedContent.getId is defined %}
+                            {% set action = 'updateContentValid' %}
+                            <input type="hidden" value="{{ selectedContent.getId }}" name="id">
+                        {% endif %}
+                        <input type="hidden" value="edit" name="controller">
+                        <input type="hidden" value="{{ action }}" name="action">
+                        <div class="col-md-4">
+                            <label for="contentNameId" class="form-label">Nom du contenu</label>
+                            <input type="text" class="form-control" id="contentNameId" name="contentName" value="{{ selectedContent.getContentName }}" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label for="contentDescriptionId" class="form-label">Le contenu</label>
+                            <input type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="{{ selectedContent.getContentDescription }}" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="contentTypeId" class="form-label">Type de contenu</label>
+                            <select class="form-select" id="contentTypeId" name="contentType" required>
+                                <option value="{{ selectedContent.getContentType.getId }}" selected>{{ selectedContent.getContentType.getContentTypeName }} : {{ selectedContent.getContentType.getContentTypeDescription }}</option>
+                                {% for contentType in listContentTypes %}
+                                    {% if contentType.getId != selectedContent.getContentType.getId %}
+                                        <option value="{{ contentType.getId }}">{{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="positionId" class="form-label">Position dans la page</label>
+                            <select class="form-select" id="positionId" name="position">
+                                
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <p class="text-secondary">Contenu créé le {{ selectedContent.getCreationDate }}</p>
+                            <p class="text-secondary">Dernière modification le {{ selectedContent.getModificationDate }} par l'utilisateur {{ selectedContent.getIdUser }}</p>
+                            {% if selectedContent.getIsPublished == 1 %}
+                                <p class="text-success">Contenu publié</p>
+                            {% else %}
+                                <p class="text-danger">Contenu non publié</p>
+                            {% endif %}
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="toPublishId" name="toPublish">
+                                <label class="form-check-label" for="toPublishId">
+                                    Publier le contenu modifié
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-secondary" type="submit">Modifier</button>
+                        </div>
+                        </form>  
+                    </div>
+                {% endif %}
+
+                {% if createContent is defined %}
+                    <div class="col-8 p-2">
+                        <h5 class="p-2">Créer un nouveau contenu</h5>
+                        {% if message is defined %}                        
+                        <div class="alert alert-{{ message.type }} alert-dismissible fade show" role="alert">
+                            {{ message.message }}
+                        </div>                        
+                        {% endif %}
+                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        {% set action = 'createContentValid' %}
+                        <input type="hidden" value="edit" name="controller">
+                        <input type="hidden" value="{{ action }}" name="action">
+                        <div class="col-md-4">
+                            <label for="contentNameId" class="form-label">Nom du contenu</label>
+                            <input type="text" class="form-control" id="contentNameId" name="contentName" value="" required>
+                        </div>
+                        <div class="col-md-8">
+                            <label for="contentDescriptionId" class="form-label">Le contenu</label>
+                            <input type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="contentTypeId" class="form-label">Type de contenu</label>
+                            <select class="form-select" id="contentTypeId" name="contentType" required>
+                                {% for contentType in listContentTypes %}
+                                    {% if contentType.getId == 4 %}
+                                        <option value="{{ contentType.getId }}" selected>{{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}</option>
+                                    {% else %}                                        
+                                        <option value="{{ contentType.getId }}">{{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="positionId" class="form-label">Position dans la page</label>
+                            <select class="form-select" id="positionId" name="position">
+                                
+                            </select>
+                        </div>
+                        <div class="col-12">                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="toPublishId" name="toPublish">
+                                <label class="form-check-label" for="toPublishId">
+                                    Publier le contenu créé
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-secondary" type="submit">créer</button>
+                        </div>
+                        </form>  
+                    </div>
+                {% endif %}
+
+            </div>
+        {% endif %}
+        
 
     </div>    
 

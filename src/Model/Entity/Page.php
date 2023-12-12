@@ -77,7 +77,7 @@ class Page
     public function getCreationDate(): ?string
     {
         $dateTimeCreationDate = new \DateTime($this->creationDate);
-        $creationDate = $dateTimeCreationDate->format('Y-m-d \à H:i:s');
+        $creationDate = $dateTimeCreationDate->format('d/m/Y à H\hi');
         return $creationDate;
     }
 
@@ -89,7 +89,7 @@ class Page
     public function getModificationDate(): ?string
     {
         $dateTimeModificationDate = new \DateTime($this->modificationDate);
-        $modificationDate = $dateTimeModificationDate->format('Y-m-d \à H:i:s');
+        $modificationDate = $dateTimeModificationDate->format('d/m/Y à H\hi');
         return $modificationDate;
     }
 

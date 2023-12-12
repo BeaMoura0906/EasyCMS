@@ -6,6 +6,8 @@ use EasyCMS\src\Model\EditManager;
 
 use EasyCMS\src\Model\Entity\Page;
 
+use EasyCMS\src\Model\Entity\Content;
+
 class EditController extends Controller
 {
     private $_manager;
@@ -115,7 +117,8 @@ class EditController extends Controller
             'message'   => [
                 'type'      => 'warning',
                 'message'   => 'Erreur lors de la création' 
-            ]
+            ],
+            'createPage' => true
         ];
 
         if ( !empty($_REQUEST['pageName']) && !empty($_REQUEST['stringIsHomePage']) ){
@@ -133,13 +136,128 @@ class EditController extends Controller
             }
             $page->setIdUser($this->userId);
 
-            if($this->_manager->createPage( $page )) {
+            if($this->_manager->insertPage( $page )) {
                 $data['message']['type'] = 'success';
                 $data['message']['message'] = 'Création de la page effectuée !';
             }
             
         }
         $data['listPages'] = $this->_manager->getAllPages();
+        $this->render('edit', $data);
+    }
+
+    public function editContentAction()
+    {
+        if( $listContents = $this->_manager->getAllContents() ){
+            $data = [
+                'userId' => $this->userId,
+                'listContents' => $listContents
+            ]; 
+            
+        }
+        $this->render('edit', $data);
+    }
+
+    public function updateContentAction()
+    {
+        
+        if( isset($_REQUEST['contentId']) ){
+            $id = $_REQUEST['contentId'];
+            if( $selectedContent = $this->_manager->getContentById($id) ){
+                $listContents = $this->_manager->getAllContents();
+                $listContentTypes = $this->_manager->getAllContentTypes();
+                $data = [
+                    'userId'            => $this->userId,
+                    'listContents'      => $listContents,
+                    'listContentTypes'  => $listContentTypes,
+                    'selectedContent'   => $selectedContent
+                ]; 
+                
+            }
+        }
+        $this->render('edit', $data);
+    }
+
+    public function updateContentValidAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la modification' 
+        ];
+
+        if ( isset($_REQUEST['id']) && !empty($_REQUEST['contentName']) && !empty($_REQUEST['contentDescription']) ){
+            $content = $this->_manager->getContentById( $_REQUEST['id']);
+            $content->setContentName($_REQUEST['contentName']);
+            $content->setContentDescription($_REQUEST['contentDescription']);
+            $contentType = $this->_manager->getContentTypeById($_REQUEST['contentType']);
+            $content->setContentType($contentType);
+            if( isset($_REQUEST['toPublish']) ){
+                $content->setIsPublished(1);
+            } else {
+                $content->setIsPublished(0);
+            }            
+
+            if($this->_manager->updateContent( $content )) {
+                $message['type'] = 'success';
+                $message['message'] = 'Modification du contenu effectuée !';
+            }
+        }
+        $listContents = $this->_manager->getAllContents();
+        $listContentTypes = $this->_manager->getAllContentTypes();
+        $data = [
+            'userId'            => $this->userId,
+            'listContents'      => $listContents,
+            'listContentTypes'  => $listContentTypes,
+            'message'           => $message,
+            'selectedContent'   => $content
+        ]; 
+        $this->render('edit', $data);
+    }
+
+    public function createContentAction()
+    {
+        $data = [
+            'userId' => $this->userId,
+            'listContents' => $this->_manager->getAllContents(),
+            'listContentTypes'  => $this->_manager->getAllContentTypes(),
+            'createContent' => true
+        ]; 
+        $this->render('edit', $data);
+    }
+
+    public function createContentValidAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la modification' 
+        ];
+
+        if ( !empty($_REQUEST['contentName']) && !empty($_REQUEST['contentDescription']) ){
+            $content = new Content([]);
+            $content->setContentName($_REQUEST['contentName']);
+            $content->setContentDescription($_REQUEST['contentDescription']);
+            $contentType = $this->_manager->getContentTypeById($_REQUEST['contentType']);
+            $content->setContentType($contentType);
+            if( isset($_REQUEST['toPublish']) ){
+                $content->setIsPublished(1);
+            } else {
+                $content->setIsPublished(0);
+            }
+            $content->setIdUser($this->userId);
+            if($this->_manager->insertContent( $content )) {
+                $message['type'] = 'success';
+                $message['message'] = 'Modification du contenu effectuée !';
+            }
+        }
+        $listContents = $this->_manager->getAllContents();
+        $listContentTypes = $this->_manager->getAllContentTypes();
+        $data = [
+            'userId'            => $this->userId,
+            'listContents'      => $listContents,
+            'listContentTypes'  => $listContentTypes,
+            'message'           => $message,
+            'selectedContent'   => $content
+        ]; 
         $this->render('edit', $data);
     }
 }
