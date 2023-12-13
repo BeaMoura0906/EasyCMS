@@ -5,6 +5,7 @@ namespace EasyCMS\src\Model;
 use EasyCMS\src\Model\Entity\Page;
 use EasyCMS\src\Model\Entity\Content;
 use EasyCMS\src\Model\Entity\ContentType;
+use EasyCMS\src\Model\Entity\Navigation;
 
 class EditManager extends Manager 
 {
@@ -29,7 +30,7 @@ class EditManager extends Manager
         }
     }
 
-    public function getPageById($id): Page
+    public function getPageById($id): ?Page
     {
         $sql = "SELECT * FROM pages WHERE id=:id";
         $req = $this->dbManager->db->prepare( $sql );
@@ -313,5 +314,144 @@ class EditManager extends Manager
         }
     }
 
+    public function getAllNavigations(): ?array
+    {
+        $listNavigations = [];
+        $sql = "SELECT * FROM navigations";
+        $req = $this->dbManager->db->prepare( $sql );
+        if( $req->execute()){
+            $listNavData = $req->fetchAll( \PDO::FETCH_ASSOC );
+
+            foreach( $listNavData as $navData){
+                $nav = new Navigation($navData);
+                $listNavigations[] = $nav;
+                
+            }
+            
+            return $listNavigations;
+        } else {
+            return null;
+        }
+    }
+
+    public function getNavigationById($id): ?Navigation
+    {
+        $sql = "SELECT n.*, p.id AS page_id, p.page_name, p.is_home_page, p.is_published FROM navigations n
+                INNER JOIN pages p ON n.id_page = p.id
+                WHERE n.id=:id";
+
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+
+            if ($req->execute(['id' => $id])) {
+                $navData = $req->fetch(\PDO::FETCH_ASSOC);
+
+                if ($navData) {
+                    $nav = new Navigation($navData);
+
+                    $page = new Page([
+                        'id' => $navData['page_id'],
+                        'page_name' => $navData['page_name'],
+                        'is_home_page' => $navData['is_home_page']
+                    ]);
+
+                    $nav->setPage($page);
+
+                    return $nav;
+                } else {
+                    // Aucun résultat trouvé pour l'ID spécifié
+                    return null;
+                }
+            } else {
+                // Afficher ou enregistrer l'erreur selon les besoins
+                var_dump($req->errorInfo());
+                return null;
+            }
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return null;
+        }
+    }
+
+    public function updateNavigation(Navigation $nav): bool
+    {
+        $sql = "UPDATE navigations
+                SET
+                    nav_name = :navName,
+                    modification_date = CURRENT_TIME,
+                    is_published = :isPublished,
+                    id_page = :pageId,
+                    id_user = :userId,
+                    id_position = :positionId
+                    
+                WHERE
+                    id = :id";
+
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+
+            // Si getPositionId est égal à 0, affecte NULL à la place
+            $positionId = ($nav->getIdPosition() === 0) ? null : $nav->getIdPosition();
+
+            return $req->execute([
+                'id' => $nav->getId(),
+                'navName' => $nav->getNavName(),
+                'isPublished' => intval($nav->getIsPublished()),
+                'userId' => $nav->getIdUser(),
+                'positionId' => $positionId,
+                'pageId' => $nav->getPage()->getId()
+            ]);
+            
+
+            
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function insertNavigation(Navigation $nav): bool
+    {
+        $sql = "INSERT INTO navigations (
+                    nav_name,
+                    creation_date,
+                    modification_date,
+                    is_published,
+                    id_page,
+                    id_user,
+                    id_position
+                ) VALUES (
+                    :navName,
+                    CURRENT_TIME,
+                    CURRENT_TIME,
+                    :isPublished,
+                    :pageId,
+                    :userId,
+                    :positionId
+                )";
+        
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+
+            // Si getIdPosition est égal à 0, affecte NULL à la place
+            $positionId = ($nav->getIdPosition() === 0) ? null : $nav->getIdPosition();
+
+            return $req->execute([
+                'navName' => $nav->getNavName(),
+                'isPublished' => intval($nav->getIsPublished()),
+                'pageId' => $nav->getPage()->getId(),
+                'userId' => $nav->getIdUser(),
+                'positionId' => $positionId
+            ]);
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    
 
 }

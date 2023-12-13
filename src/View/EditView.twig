@@ -31,7 +31,7 @@
             <div class="col-4">
                 <div class="card m-2">
                     <div class="card-body bg-primary-subtle">
-                        <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="">Éditer la navigation</a></h5>
+                        <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=editNav">Éditer la navigation</a></h5>
                     </div>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                             {{ message.message }}
                         </div>                        
                         {% endif %}
-                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        <form class="row ps-2 g-3" action="index.php" method="post">
                         {% if selectedPage.getId is defined %}
                             {% set action = 'updatePageValid' %}
                             <input type="hidden" value="{{ selectedPage.getId }}" name="id">
@@ -112,7 +112,7 @@
                             {{ message.message }}
                         </div>
                         {% endif %}
-                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        <form class="row ps-2 g-3" action="index.php" method="post">
                         {% set action = 'createPageValid' %}
                         <input type="hidden" value="edit" name="controller">
                         <input type="hidden" value="{{ action }}" name="action">
@@ -167,7 +167,7 @@
                             {{ message.message }}
                         </div>                        
                         {% endif %}
-                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        <form class="row ps-2 g-3" action="index.php" method="post">
                         {% if selectedContent.getId is defined %}
                             {% set action = 'updateContentValid' %}
                             <input type="hidden" value="{{ selectedContent.getId }}" name="id">
@@ -230,7 +230,7 @@
                             {{ message.message }}
                         </div>                        
                         {% endif %}
-                        <form class="row ps-2 g-3 needs-validation" action="index.php" method="post" novalidate>
+                        <form class="row ps-2 g-3" action="index.php" method="post">
                         {% set action = 'createContentValid' %}
                         <input type="hidden" value="edit" name="controller">
                         <input type="hidden" value="{{ action }}" name="action">
@@ -269,7 +269,7 @@
                             </div>
                         </div>
                         <div class="col-12">
-                            <button class="btn btn-secondary" type="submit">créer</button>
+                            <button class="btn btn-secondary" type="submit">Créer</button>
                         </div>
                         </form>  
                     </div>
@@ -277,9 +277,135 @@
 
             </div>
         {% endif %}
-        
+
+        {% if listNavigations is defined %}
+            <div class="row text-start mt-3">
+                <div class="col-4 p-2">
+                    <h5 class="p-2">Selectionnez la navigation à modifier</h5>
+                    <ul class="list-group">
+                        {% for navigation in listNavigations %}
+                            <li class="list-group-item"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateNav&navId={{ navigation.getId }}">{{ navigation.getNavName }}</a></li>
+                        {% endfor %}
+                        <li class="list-group-item bg-body-tertiary"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createNav">Créer une nouvelle navigation</a></li>
+                    </ul>
+                </div>
+
+                {% if selectedNav is defined %}
+                    <div class="col-8 p-2">
+                        <h5 class="p-2">Modifier {{ selectedNav.getNavName }}</h5>
+                        {% if message is defined %}                        
+                        <div class="alert alert-{{ message.type }} alert-dismissible fade show" role="alert">
+                            {{ message.message }}
+                        </div>                        
+                        {% endif %}
+                        <form class="row ps-2 g-3 align-items-center" action="index.php" method="post">
+                        {% if selectedNav.getId is defined %}
+                            {% set action = 'updateNavValid' %}
+                            <input type="hidden" value="{{ selectedNav.getId }}" name="id">
+                        {% endif %}
+                        <input type="hidden" value="edit" name="controller">
+                        <input type="hidden" value="{{ action }}" name="action">
+                        <div class="col-md-6">
+                            <label for="navNameId" class="form-label mb-0">Nom de la navigation</label>
+                            <p class="text-secondary fst-italic mb-1">De préférence, se rapportant au nom de la page qu'elle lie.</p>
+                            <input type="text" class="form-control" id="navNameId" name="navName" value="{{ selectedNav.getNavName }}" required>
+                        </div>
+                        <div class="col-md-6 align-item-center">
+                            <label for="positionId" class="form-label mb-0">Position dans le page</label>
+                            <p class="text-secondary fst-italic mb-1">Position identique pour toutes les navigations réunies en menu.</p>
+                            <select class="form-select" id="positionId" name="position">
+                                
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="navPageId" class="form-label">Page liée par la navigation</label>
+                            <select class="form-select" id="navPageId" name="navPage" required>
+                                <option value="{{ selectedNav.getPage.getId }}" selected>
+                                    {{ selectedNav.getPage.getId }} : {{ selectedNav.getPage.getPageName }} | {% if selectedNav.getPage.getIsHomePage == 1 %}Page d'accueil{% else %}Page annexe{% endif %} | {% if selectedNav.getPage.getIsPublished == 1 %}Publiée{% else %}Non Publiée{% endif %}
+                                </option>
+                                {% for navPage in listNavPages %}
+                                    {% if navPage.getId != selectedNav.getPage.getId %}
+                                        <option value="{{ navPage.getId }}">
+                                            {{ navPage.getId }} : {{ navPage.getPageName }} | {% if navPage.getIsHomePage == 1 %}Page d'accueil{% else %}Page annexe{% endif %} | {% if navPage.getIsPublished == 1 %}Publiée{% else %}Non Publiée{% endif %}
+                                        </option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <p class="text-secondary">Navigation créée le {{ selectedNav.getCreationDate }}</p>
+                            <p class="text-secondary">Dernière modification le {{ selectedNav.getModificationDate }} par l'utilisateur {{ selectedNav.getIdUser }}</p>
+                            {% if selectedNav.getIsPublished == 1 %}
+                                <p class="text-success">Navigation publiée</p>
+                            {% else %}
+                                <p class="text-danger">Navigation non publiée</p>
+                            {% endif %}
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="toPublishId" name="toPublish">
+                                <label class="form-check-label" for="toPublishId">
+                                    Publier la navigation modifiée
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-secondary" type="submit">Modifier</button>
+                        </div>
+                        </form>  
+                    </div>
+                {% endif %}
+
+                {% if createNav is defined %}
+                    <div class="col-8 p-2">
+                        <h5 class="p-2">Créer une nouvelle navigation</h5>
+                        {% if message is defined %}                        
+                        <div class="alert alert-{{ message.type }} alert-dismissible fade show" role="alert">
+                            {{ message.message }}
+                        </div>                        
+                        {% endif %}
+                        <form class="row ps-2 g-3 align-items-center" action="index.php" method="post">
+                        {% set action = 'createNavValid' %}                            
+                        <input type="hidden" value="edit" name="controller">
+                        <input type="hidden" value="{{ action }}" name="action">
+                        <div class="col-md-6">
+                            <label for="navNameId" class="form-label mb-0">Nom de la navigation</label>
+                            <p class="text-secondary fst-italic mb-1">De préférence, se rapportant au nom de la page qu'elle lie.</p>
+                            <input type="text" class="form-control" id="navNameId" name="navName" value="" required>
+                        </div>
+                        <div class="col-md-6 align-item-center">
+                            <label for="positionId" class="form-label mb-0">Position dans le page</label>
+                            <p class="text-secondary fst-italic mb-1">Position identique pour toutes les navigations réunies en menu.</p>
+                            <select class="form-select" id="positionId" name="position">
+                                
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label for="navPageId" class="form-label">Page liée par la navigation</label>
+                            <select class="form-select" id="navPageId" name="navPage" required>
+                                {% for navPage in listNavPages %}                                                                   
+                                        <option value="{{ navPage.getId }}">
+                                            {{ navPage.getId }} : {{ navPage.getPageName }} | {% if navPage.getIsHomePage == 1 %}Page d'accueil{% else %}Page annexe{% endif %} | {% if navPage.getIsPublished == 1 %}Publiée{% else %}Non Publiée{% endif %}
+                                        </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="toPublishId" name="toPublish">
+                                <label class="form-check-label" for="toPublishId">
+                                    Publier la navigation créée
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-secondary" type="submit">Créer</button>
+                        </div>
+                        </form>  
+                    </div>
+                {% endif %}              
+
+            </div>
+        {% endif %}
 
     </div>    
-
-
 {% endblock %}

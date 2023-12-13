@@ -7,6 +7,7 @@ use EasyCMS\src\Model\EditManager;
 use EasyCMS\src\Model\Entity\Page;
 
 use EasyCMS\src\Model\Entity\Content;
+use EasyCMS\src\Model\Entity\Navigation;
 
 class EditController extends Controller
 {
@@ -229,7 +230,7 @@ class EditController extends Controller
     {
         $message = [
             'type'      => 'warning',
-            'message'   => 'Erreur lors de la modification' 
+            'message'   => 'Erreur lors de la création' 
         ];
 
         if ( !empty($_REQUEST['contentName']) && !empty($_REQUEST['contentDescription']) ){
@@ -246,7 +247,7 @@ class EditController extends Controller
             $content->setIdUser($this->userId);
             if($this->_manager->insertContent( $content )) {
                 $message['type'] = 'success';
-                $message['message'] = 'Modification du contenu effectuée !';
+                $message['message'] = 'Création du contenu effectuée !';
             }
         }
         $listContents = $this->_manager->getAllContents();
@@ -256,8 +257,127 @@ class EditController extends Controller
             'listContents'      => $listContents,
             'listContentTypes'  => $listContentTypes,
             'message'           => $message,
-            'selectedContent'   => $content
+            'createContent' => true
         ]; 
         $this->render('edit', $data);
     }
+
+    public function editNavAction()
+    {
+        if( $listNavigations = $this->_manager->getAllNavigations() ){
+            $data = [
+                'userId' => $this->userId,
+                'listNavigations' => $listNavigations
+            ]; 
+            $this->render('edit', $data);
+        }
+    }
+
+    public function updateNavAction()
+    {
+        
+        if( isset($_REQUEST['navId']) ){
+            $id = $_REQUEST['navId'];
+            if( $selectedNav = $this->_manager->getNavigationById($id) ){
+                $listNavigations = $this->_manager->getAllNavigations();
+                $listNavPages = $this->_manager->getAllPages();
+                $data = [
+                    'userId'            => $this->userId,
+                    'listNavigations'   => $listNavigations,
+                    'listNavPages'      => $listNavPages,
+                    'selectedNav'       => $selectedNav
+                ]; 
+                
+            }
+        }
+        $this->render('edit', $data);
+    }
+
+    public function updateNavValidAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la modification' 
+        ];
+
+        if ( isset($_REQUEST['id']) && !empty($_REQUEST['navName']) ){
+            $nav = $this->_manager->getNavigationById( $_REQUEST['id']);
+            $nav->setNavName($_REQUEST['navName']);
+            $navPage = $this->_manager->getPageById($_REQUEST['navPage']);
+            $nav->setPage($navPage);
+            if( isset($_REQUEST['toPublish']) ){
+                $nav->setIsPublished(1);
+            } else {
+                $nav->setIsPublished(0);
+            }            
+
+            if($this->_manager->updateNavigation( $nav )) {
+                $message['type'] = 'success';
+                $message['message'] = 'Modification de la navigation effectuée !';
+            }
+        }
+        
+        $listNavigations = $this->_manager->getAllNavigations();
+        $listNavPages = $this->_manager->getAllPages();
+        $data = [
+            'userId'            => $this->userId,
+            'listNavigations'   => $listNavigations,
+            'listNavPages'      => $listNavPages,
+            'message'           => $message,
+            'selectedNav'       => $nav
+        ];
+
+        $this->render('edit', $data);
+    }
+
+    public function createNavAction()
+    {    
+        $data = [
+            'userId'            => $this->userId,
+            'listNavigations'   => $this->_manager->getAllNavigations(),
+            'listNavPages'      => $this->_manager->getAllPages(),
+            'createNav'         => true
+        ]; 
+        $this->render('edit', $data);
+    }
+
+    public function createNavValidAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la création' 
+        ];
+
+        if ( !empty($_REQUEST['navName']) ){
+            $nav = new Navigation([]);
+            $nav->setNavName($_REQUEST['navName']);
+            $navPage = $this->_manager->getPageById($_REQUEST['navPage']);
+            $nav->setPage($navPage);
+            if( isset($_REQUEST['toPublish']) ){
+                $nav->setIsPublished(1);
+            } else {
+                $nav->setIsPublished(0);
+            }            
+            $nav->setIdUser($this->userId);
+            if($this->_manager->insertNavigation( $nav )) {
+                $message['type'] = 'success';
+                $message['message'] = 'Création de la navigation effectuée !';
+            }
+        }
+
+        $listNavigations = $this->_manager->getAllNavigations();
+        $listNavPages = $this->_manager->getAllPages();
+        $data = [
+            'userId'            => $this->userId,
+            'listNavigations'   => $listNavigations,
+            'listNavPages'      => $listNavPages,
+            'message'           => $message,
+            'createNav'         => true
+        ];
+        $this->render('edit', $data);
+    }
+
+    
+
+    
 }

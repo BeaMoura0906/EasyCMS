@@ -2,17 +2,16 @@
 
 namespace EasyCMS\src\Model\Entity;
 
-class Content
+class Navigation
 {
     private $id = 0;
-    private $contentName = 0;
-    private $contentDescription = 0;
+    private $navName = 0;
     private $creationDate = 0;
     private $modificationDate = 0;
     private $isPublished = 0;
+    private $page;
     private $idUser = 0;
     private $idPosition = 0;
-    private $contentType;
 
     public function __construct(array $contentData)
     {
@@ -22,8 +21,8 @@ class Content
     public function hydrate(array $data)
     {
         foreach ($data as $key => $value) {
-            if ($key === 'contentType') {
-                $this->setContentType(new ContentType($value));
+            if ($key === 'page') {
+                $this->setPage(new Page($value));
             } else {
                 $method = 'set' . $this->convertSnakeCaseToCamelCase($key);
 
@@ -49,24 +48,14 @@ class Content
         $this->id = $id;
     }
 
-    public function getContentName()
+    public function getNavName()
     {
-        return $this->contentName;
+        return $this->navName;
     }
 
-    public function setContentName($contentName)
+    public function setNavName($navName)
     {
-        $this->contentName = $contentName;
-    }
-
-    public function getContentDescription()
-    {
-        return $this->contentDescription;
-    }
-
-    public function setContentDescription($contentDescription)
-    {
-        $this->contentDescription = $contentDescription;
+        $this->navName = $navName;
     }
 
     public function getCreationDate(): ?string
@@ -84,7 +73,6 @@ class Content
             return null;
         }
     }
-
 
     public function setCreationDate($creationDate)
     {
@@ -107,7 +95,6 @@ class Content
         }
     }
 
-
     public function setModificationDate($modificationDate)
     {
         $this->modificationDate = $modificationDate;
@@ -121,6 +108,16 @@ class Content
     public function setIsPublished($isPublished)
     {
         $this->isPublished = $isPublished;
+    }
+
+    public function getPage(): ?Page
+    {
+        return $this->page;
+    }
+
+    public function setPage(Page $page)
+    {
+        $this->page = $page;
     }
 
     public function getIdUser()
@@ -142,15 +139,4 @@ class Content
     {
         $this->idPosition = $idPosition;
     }
-
-    public function getContentType(): ?ContentType
-    {
-        return $this->contentType;
-    }
-
-    public function setContentType(ContentType $contentType)
-    {
-        $this->contentType = $contentType;
-    }
-
 }
