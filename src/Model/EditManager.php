@@ -254,7 +254,7 @@ class EditManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
 
             // Si getPositionId est égal à 0, affecte NULL à la place
-            $positionId = ($content->getIdPosition() === 0) ? null : $content->getIdPosition();
+            $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
             return $req->execute([
                 'id' => $content->getId(),
@@ -297,7 +297,7 @@ class EditManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
 
             // Si getPositionId est égal à 0, affecte NULL à la place
-            $positionId = ($content->getIdPosition() === 0) ? null : $content->getIdPosition();
+            $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
             return $req->execute([
                 'contentName' => $content->getContentName(),

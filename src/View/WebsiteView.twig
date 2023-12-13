@@ -1,1 +1,94 @@
-** EN CONSTRUCTION **
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script type="module" src="assets/js/bootstrap.min.js"></script>
+    <title>Your Website</title>
+</head>
+
+<body>
+    <div class="container-fluid text-end p-2">
+        <a class=" link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=profile">Retour au <strong>Tableau de bord</strong></a>
+    </div>
+    
+    <header>
+        <nav class="navbar navbar-expand-lg bg-primary-subtle">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="index.php?controller=website">Website</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% for nav in listNav %}
+                        {% if nav.page.isHomePage == 1 %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php?controller=website"><strong>Accueil</strong></a>
+                            </li>
+                        {% elseif nav.page.isHomePage == 0 %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php?controller=website&action=selectPage&pageId={{ nav.page.id }}">{{ nav.navName }}</a>
+                            </li>
+                        {% endif %}
+                                            
+                    {% endfor %}                    
+                </ul>
+                </div>
+            </div>
+        </nav>        
+    </header>
+    <main class="container">
+        {% if homePage is defined %}
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-center m-5">{{ homePage.getPageName }}</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {% for content in listContentsOfHomePage %}
+                        {% if content.contentType.id == 1 %}
+                            <h3 class="m-3">{{ content.contentDescription }}</h3>
+                        {% elseif content.contentType.id == 3 %}
+                            <img src="{{ content.contentDescription }}" class="img-fluid m-3" alt="{{ content.contentName }}"/>
+                        {% elseif content.contentType.id == 4 %}
+                            <a href="{{ content.contentDescription }}" class="link-underline-primary m-3">{{ content.contentName }}</a>
+                        {% elseif content.contentType.id == 2 %}
+                            <article class="m-3">{{ content.contentDescription }}</article>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>        
+        {% endif %}
+        {% if page is defined %}
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="text-center m-5">{{ page.pageName }}</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {% for content in listContents %}
+                        {% if content.contentType.id == 1 %}
+                            <h3 class="m-3">{{ content.contentDescription }}</h3>
+                        {% elseif content.contentType.id == 3 %}
+                            <img src="{{ content.contentDescription }}" class="img-fluid m-3" alt="{{ content.contentName }}"/>
+                        {% elseif content.contentType.id == 4 %}
+                            <a href="{{ content.contentDescription }}" class="link-underline-primary m-3">{{ content.contentName }}</a>
+                        {% elseif content.contentType.id == 2 %}
+                            <article class="m-3">{{ content.contentDescription }}</article>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>       
+            
+        {% endif %}
+        
+        
+    </main>
+</body>
+
+
+

@@ -11,7 +11,7 @@ class Content
     private $modificationDate = 0;
     private $isPublished = 0;
     private $idUser = 0;
-    private $idPosition = 0;
+    private $position;
     private $contentType;
 
     public function __construct(array $contentData)
@@ -24,6 +24,8 @@ class Content
         foreach ($data as $key => $value) {
             if ($key === 'contentType') {
                 $this->setContentType(new ContentType($value));
+            } else if ($key === 'position') {
+                $this->setPosition(new Position($value));
             } else {
                 $method = 'set' . $this->convertSnakeCaseToCamelCase($key);
 
@@ -133,14 +135,14 @@ class Content
         $this->idUser = $idUser;
     }
 
-    public function getIdPosition()
+    public function getPosition(): ?Position
     {
-        return $this->idPosition;
+        return $this->position;
     }
 
-    public function setIdPosition($idPosition)
+    public function setPosition(Position $position)
     {
-        $this->idPosition = $idPosition;
+        $this->position = $position;
     }
 
     public function getContentType(): ?ContentType
