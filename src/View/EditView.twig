@@ -100,7 +100,16 @@
                         <div class="col-12">
                             <button class="btn btn-secondary" type="submit">Modifier</button>
                         </div>
-                        </form>  
+                        </form>
+                        </form>
+                        <form class="row p-2 g-3" action="index.php" method="post">
+                            <input type="hidden" value="edit" name="controller">
+                            <input type="hidden" value="deletePage" name="action">
+                            <input type="hidden" value="{{ selectedPage.getId }}" name="id">
+                            <div class="col-12">
+                                <button class="btn btn-danger" type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette page ?')">Supprimer</button>
+                            </div>
+                        </form>
                     </div>
                 {% endif %}
 
@@ -375,7 +384,15 @@
                         <div class="col-12">
                             <button class="btn btn-secondary" type="submit">Modifier</button>
                         </div>
-                        </form>  
+                        </form>
+                        <form class="row p-2 g-3" action="index.php" method="post">
+                            <input type="hidden" value="edit" name="controller">
+                            <input type="hidden" value="deleteNav" name="action">
+                            <input type="hidden" value="{{ selectedNav.getId }}" name="id">
+                            <div class="col-12">
+                                <button class="btn btn-danger" type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette nevigation ?')">Supprimer</button>
+                            </div>
+                        </form>
                     </div>
                 {% endif %}
 

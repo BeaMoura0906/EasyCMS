@@ -101,6 +101,34 @@ class EditController extends Controller
         $this->render('edit', $data);
     }
 
+    public function deletePageAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la suppression' 
+        ];
+
+        if ( isset($_REQUEST['id']) ) {
+            $id = $_REQUEST['id'];
+            if( $this->_manager->deletePageById( $id ) ){
+                $message['type'] = 'success';
+                $message['message'] = 'Suppression de la page effectuée !';
+                $selectedPage = null;
+            } else {
+                $selectedPage = $this->_manager->getPageById($id);
+            }
+        } 
+        $listPages = $this->_manager->getAllPages();
+        $data = [
+            'userId'            => $this->userId,
+            'listPages'         => $listPages,
+            'message'           => $message,
+            'selectedPage'      => $selectedPage
+        ];
+
+        $this->render('edit', $data);
+    }
+
     public function createPageAction()
     {
         $data = [
@@ -238,6 +266,34 @@ class EditController extends Controller
         $this->render('edit', $data);
     }
 
+    public function deleteContentAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la suppression' 
+        ];
+
+        if ( isset($_REQUEST['id']) ) {
+            $id = $_REQUEST['id'];
+            if( $this->_manager->deleteContentById( $id ) ){
+                $message['type'] = 'success';
+                $message['message'] = 'Suppression du contenu effectuée !';
+                $selectedContent = $this->_manager->getContentById($id);
+            }
+        }
+        $listContents = $this->_manager->getAllContents();
+        $listContentTypes = $this->_manager->getAllContentTypes();
+        $data = [
+            'userId'            => $this->userId,
+            'listContents'      => $listContents,
+            'listContentTypes'  => $listContentTypes,
+            'message'           => $message,
+            'selectedContent'   => $selectedContent
+        ];
+
+        $this->render('edit', $data);
+    }
+
     public function createContentValidAction()
     {
         $message = [
@@ -279,34 +335,6 @@ class EditController extends Controller
             'message'           => $message,
             'createContent' => true
         ]; 
-        $this->render('edit', $data);
-    }
-
-    public function deleteContentAction()
-    {
-        $message = [
-            'type'      => 'warning',
-            'message'   => 'Erreur lors de la suppression' 
-        ];
-
-        if ( isset($_REQUEST['id']) ) {
-            $id = $_REQUEST['id'];
-            if( $this->_manager->deleteContentById( $id ) ){
-                $message['type'] = 'success';
-                $message['message'] = 'Suppression du contenu effectuée !';
-                $selectedContent = $this->_manager->getContentById($id);
-            }
-        }
-        $listContents = $this->_manager->getAllContents();
-        $listContentTypes = $this->_manager->getAllContentTypes();
-        $data = [
-            'userId'            => $this->userId,
-            'listContents'      => $listContents,
-            'listContentTypes'  => $listContentTypes,
-            'message'           => $message,
-            'selectedContent'   => $selectedContent
-        ];
-
         $this->render('edit', $data);
     }
 
@@ -373,6 +401,36 @@ class EditController extends Controller
             'listNavPages'      => $listNavPages,
             'message'           => $message,
             'selectedNav'       => $nav
+        ];
+
+        $this->render('edit', $data);
+    }
+
+    public function deleteNavAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la suppression' 
+        ];
+
+        if ( isset($_REQUEST['id']) ) {
+            $id = $_REQUEST['id'];
+            if( $this->_manager->deleteNavById( $id ) ){
+                $message['type'] = 'success';
+                $message['message'] = 'Suppression de la navigation effectuée !';
+                $selectedNav = null;
+            } else {
+                $selectedNav = $this->_manager->getPageById($id);
+            }
+        } 
+        $listNavigations = $this->_manager->getAllNavigations();
+        $listNavPages = $this->_manager->getAllPages();
+        $data = [
+            'userId'            => $this->userId,
+            'listNavigations'   => $listNavigations,
+            'listNavPages'      => $listNavPages,
+            'message'           => $message,
+            'selectedNav'       => $selectedNav
         ];
 
         $this->render('edit', $data);

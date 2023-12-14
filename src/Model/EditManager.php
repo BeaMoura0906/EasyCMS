@@ -98,6 +98,25 @@ class EditManager extends Manager
         
     }
 
+    public function deletePageById($pageId): bool
+    {
+        $sql = "DELETE FROM pages WHERE id = :pageId";
+
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+            $req->execute(['pageId' => $pageId]);
+
+            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            $rowCount = $req->rowCount();
+
+            return $rowCount > 0;
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return false;
+        }
+    }
+
     public function getAllContents(): ?array
     {
         $sql = "SELECT
@@ -540,6 +559,25 @@ class EditManager extends Manager
                 'userId' => $nav->getIdUser(),
                 'positionId' => $positionId
             ]);
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return false;
+        }
+    }
+
+    public function deleteNavById($navId): bool
+    {
+        $sql = "DELETE FROM navigations WHERE id = :navId";
+
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+            $req->execute(['navId' => $navId]);
+
+            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            $rowCount = $req->rowCount();
+
+            return $rowCount > 0;
         } catch (\PDOException $e) {
             // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
