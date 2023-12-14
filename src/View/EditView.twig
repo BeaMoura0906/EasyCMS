@@ -197,7 +197,20 @@
                             <label for="positionId" class="form-label">Position dans la page</label>
                             <select class="form-select" id="positionId" name="position">
                                 
+                                {% if selectedContent.position is defined %}
+                                    <option value="{{ selectedContent.getPosition.getId }}" selected>{{ selectedContent.getPosition.getPositionNumber }} : {{ selectedContent.getPosition.getPage.getPageName }}</option>
+                                {% endif %}
+                                
+                                
+                                {% for position in listPositions %}
+                                    {% if position.getId != selectedContent.getPosition.getId %}
+                                        <option value="{{ position.getId }}">{{ position.getPositionNumber }} : {{ position.getPage.getPageName }}</option>
+                                    {% endif %}
+                                    
+                                {% endfor %}
                             </select>
+                           
+                            
                         </div>
                         <div class="col-12">
                             <p class="text-secondary">Contenu créé le {{ selectedContent.getCreationDate }}</p>

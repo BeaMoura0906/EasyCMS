@@ -167,10 +167,12 @@ class EditController extends Controller
             if( $selectedContent = $this->_manager->getContentById($id) ){
                 $listContents = $this->_manager->getAllContents();
                 $listContentTypes = $this->_manager->getAllContentTypes();
+                $listPositions = $this->_manager->getAllPositions();
                 $data = [
                     'userId'            => $this->userId,
                     'listContents'      => $listContents,
                     'listContentTypes'  => $listContentTypes,
+                    'listPositions'     => $listPositions,
                     'selectedContent'   => $selectedContent
                 ]; 
                 
@@ -197,7 +199,8 @@ class EditController extends Controller
             } else {
                 $content->setIsPublished(0);
             }            
-
+            $position = $this->_manager->getPositionById($_REQUEST['position']);
+            $content->setPosition($position);
             if($this->_manager->updateContent( $content )) {
                 $message['type'] = 'success';
                 $message['message'] = 'Modification du contenu effectuée !';

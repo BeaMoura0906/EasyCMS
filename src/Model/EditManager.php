@@ -6,6 +6,7 @@ use EasyCMS\src\Model\Entity\Page;
 use EasyCMS\src\Model\Entity\Content;
 use EasyCMS\src\Model\Entity\ContentType;
 use EasyCMS\src\Model\Entity\Navigation;
+use EasyCMS\src\Model\Entity\Position;
 
 class EditManager extends Manager 
 {
@@ -99,8 +100,6 @@ class EditManager extends Manager
 
     public function getAllContents(): ?array
     {
-        $listContents = [];
-    
         $sql = "SELECT
                     c.id,
                     c.content_name,
@@ -109,33 +108,55 @@ class EditManager extends Manager
                     c.modification_date,
                     c.is_published,
                     c.id_user,
-                    c.id_position,
+                    p.id AS position_id,
+                    p.position_number,
+                    pg.id AS page_id,
+                    pg.page_name,
+                    pg.is_home_page,
+                    pg.is_published AS pg_is_published,
                     ct.id AS content_type_id,
                     ct.content_type_name,
                     ct.content_type_description
                 FROM
-                    contents c
+                    contents c                    
                 INNER JOIN
-                    content_types ct ON c.id_content_type = ct.id";
-    
+                    content_types ct ON c.id_content_type = ct.id
+                INNER JOIN
+                    positions p ON c.id_position = p.id
+                INNER JOIN
+                    pages pg ON p.id_page = pg.id";
+
         try {
             $req = $this->dbManager->db->prepare($sql);
-    
+
             if ($req->execute()) {
-                $result = $req->fetchAll(\PDO::FETCH_ASSOC);
-    
-                foreach ($result as $row) {
-                    $content = new Content($row);
+                $results = $req->fetchAll(\PDO::FETCH_ASSOC);
+                $listContents = [];
+
+                foreach ($results as $result) {
+                    $content = new Content($result);
                     $contentType = new ContentType([
-                        'id' => $row['content_type_id'],
-                        'content_type_name' => $row['content_type_name'],
-                        'content_type_description' => $row['content_type_description']
+                        'id' => $result['content_type_id'],
+                        'content_type_name' => $result['content_type_name'],
+                        'content_type_description' => $result['content_type_description']
                     ]);
                     $content->setContentType($contentType);
-    
+                    $page = new Page([
+                        'id' => $result['page_id'],
+                        'page_name' => $result['page_name'],
+                        'is_home_page' => $result['is_home_page'],
+                        'is_published' => $result['pg_is_published']
+                    ]);
+                    $position = new Position([
+                        'id' => $result['position_id'],
+                        'position_number' => $result['position_number'],
+                        'page' => $page
+                    ]);
+                    $content->setPosition($position);
+
                     $listContents[] = $content;
                 }
-    
+
                 return $listContents;
             } else {
                 // Afficher ou enregistrer l'erreur selon les besoins
@@ -147,6 +168,7 @@ class EditManager extends Manager
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
+
     }
 
     public function getContentById($id): ?Content
@@ -159,14 +181,23 @@ class EditManager extends Manager
                     c.modification_date,
                     c.is_published,
                     c.id_user,
-                    c.id_position,
+                    p.id AS position_id,
+                    p.position_number,
+                    pg.id AS page_id,
+                    pg.page_name,
+                    pg.is_home_page,
+                    pg.is_published AS pg_is_published,
                     ct.id AS content_type_id,
                     ct.content_type_name,
                     ct.content_type_description
                 FROM
-                    contents c
+                    contents c                    
                 INNER JOIN
                     content_types ct ON c.id_content_type = ct.id
+                INNER JOIN
+                    positions p ON c.id_position = p.id
+                INNER JOIN
+                    pages pg ON p.id_page = pg.id
                 WHERE
                     c.id = :id";
 
@@ -184,6 +215,21 @@ class EditManager extends Manager
                         'content_type_description' => $result['content_type_description']
                     ]);
                     $content->setContentType($contentType);
+
+                    $page = new Page([
+                        'id' => $result['page_id'],
+                        'page_name' => $result['page_name'],
+                        'is_home_page' => $result['is_home_page'],
+                        'is_published' => $result['pg_is_published']
+                    ]);
+                    
+                    $position = new Position([
+                        'id' => $result['position_id'],
+                        'position_number' => $result['position_number']
+                    ]);
+                    $position->setPage( $page );
+                    
+                    $content->setPosition($position);
 
                     return $content;
                 } else {
@@ -256,6 +302,9 @@ class EditManager extends Manager
             // Si getPositionId est égal à 0, affecte NULL à la place
             $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
+            // Mettre à jour la position de l'ancien contenu à NULL avant d'affecter la nouvelle position
+            $this->updateOldContentPosition($positionId);
+
             return $req->execute([
                 'id' => $content->getId(),
                 'contentName' => $content->getContentName(),
@@ -271,6 +320,16 @@ class EditManager extends Manager
             return false;
         }
     }
+
+    // Fonction pour mettre à jour la position de l'ancien contenu à NULL
+    private function updateOldContentPosition($newPositionId): void
+    {
+        $sql = "UPDATE contents SET id_position = NULL WHERE id_position = :newPositionId";
+
+        $req = $this->dbManager->db->prepare($sql);
+        $req->execute(['newPositionId' => $newPositionId]);
+    }
+
 
     public function insertContent(Content $content): bool
     {
@@ -336,7 +395,7 @@ class EditManager extends Manager
 
     public function getNavigationById($id): ?Navigation
     {
-        $sql = "SELECT n.*, p.id AS page_id, p.page_name, p.is_home_page, p.is_published FROM navigations n
+        $sql = "SELECT n.*, p.id AS page_id, p.page_name, p.is_home_page, p.is_published AS p_is_published FROM navigations n
                 INNER JOIN pages p ON n.id_page = p.id
                 WHERE n.id=:id";
 
@@ -352,7 +411,8 @@ class EditManager extends Manager
                     $page = new Page([
                         'id' => $navData['page_id'],
                         'page_name' => $navData['page_name'],
-                        'is_home_page' => $navData['is_home_page']
+                        'is_home_page' => $navData['is_home_page'],
+                        'is_published' => $navData['p_is_published']
                     ]);
 
                     $nav->setPage($page);
@@ -452,6 +512,97 @@ class EditManager extends Manager
         }
     }
 
+    public function getAllPositions(): ?array
+    {
+        $sql = "SELECT 
+                    p.id,
+                    p.position_number,
+                    pg.id AS page_id,
+                    pg.page_name,
+                    pg.is_home_page,
+                    pg.is_published
+                FROM positions p
+                INNER JOIN
+                    pages pg ON p.id_page = pg.id";
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+
+            if ($req->execute()) {
+                $results = $req->fetchAll(\PDO::FETCH_ASSOC);
+                $listPositions = [];
+
+                foreach ($results as $result) {
+                    $position = new Position($result);
+                    $page = new Page([
+                        'id' => $result['page_id'],
+                        'page_name' => $result['page_name'],
+                        'is_home_page' => $result['is_home_page'],
+                        'is_published' => $result['is_published']
+                    ]);
+                    $position->setPage($page);
+
+                    $listPositions[] = $position;
+                }
+
+                return $listPositions;
+            } else {
+                // Afficher ou enregistrer l'erreur selon les besoins
+                var_dump($req->errorInfo());
+                return null;
+            }
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return null;
+        }
+        return null;
+    }
     
+    public function getPositionById($positionId): ?Position
+{
+    $sql = "SELECT 
+                p.id,
+                p.position_number,
+                pg.id AS page_id,
+                pg.page_name,
+                pg.is_home_page,
+                pg.is_published
+            FROM positions p
+            INNER JOIN
+                pages pg ON p.id_page = pg.id
+            WHERE p.id = :positionId";
+
+    try {
+        $req = $this->dbManager->db->prepare($sql);
+
+        if ($req->execute(['positionId' => $positionId])) {
+            $result = $req->fetch(\PDO::FETCH_ASSOC);
+
+            if ($result !== false) {
+                $position = new Position($result);
+                $page = new Page([
+                    'id' => $result['page_id'],
+                    'page_name' => $result['page_name'],
+                    'is_home_page' => $result['is_home_page'],
+                    'is_published' => $result['is_published']
+                ]);
+                $position->setPage($page);
+
+                return $position;
+            } else {
+                // La position avec l'ID donné n'existe pas
+                return null;
+            }
+        } else {
+            // Afficher ou enregistrer l'erreur selon les besoins
+            var_dump($req->errorInfo());
+            return null;
+        }
+    } catch (\PDOException $e) {
+        // Gérer l'exception selon les besoins
+        echo "Erreur PDO : " . $e->getMessage();
+        return null;
+    }
+}
 
 }
