@@ -118,12 +118,12 @@ class EditManager extends Manager
                     ct.content_type_name,
                     ct.content_type_description
                 FROM
-                    contents c                    
-                INNER JOIN
-                    content_types ct ON c.id_content_type = ct.id
-                INNER JOIN
+                    contents c
+                LEFT JOIN
                     positions p ON c.id_position = p.id
                 INNER JOIN
+                    content_types ct ON c.id_content_type = ct.id
+                LEFT JOIN
                     pages pg ON p.id_page = pg.id";
 
         try {
@@ -141,18 +141,25 @@ class EditManager extends Manager
                         'content_type_description' => $result['content_type_description']
                     ]);
                     $content->setContentType($contentType);
-                    $page = new Page([
-                        'id' => $result['page_id'],
-                        'page_name' => $result['page_name'],
-                        'is_home_page' => $result['is_home_page'],
-                        'is_published' => $result['pg_is_published']
-                    ]);
-                    $position = new Position([
-                        'id' => $result['position_id'],
-                        'position_number' => $result['position_number'],
-                        'page' => $page
-                    ]);
-                    $content->setPosition($position);
+
+                    // Vérifier si id_position est NULL
+                    if ($result['position_id'] !== null) {
+                        $page = new Page([
+                            'id' => $result['page_id'],
+                            'page_name' => $result['page_name'],
+                            'is_home_page' => $result['is_home_page'],
+                            'is_published' => $result['pg_is_published']
+                        ]);
+                        $position = new Position([
+                            'id' => $result['position_id'],
+                            'position_number' => $result['position_number'],
+                            'page' => $page
+                        ]);
+                        $content->setPosition($position);
+                    } else {
+                        // Si id_position est NULL, position est NULL
+                        $content->setPosition(null);
+                    }
 
                     $listContents[] = $content;
                 }
@@ -168,8 +175,8 @@ class EditManager extends Manager
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
-
     }
+
 
     public function getContentById($id): ?Content
     {
@@ -191,12 +198,12 @@ class EditManager extends Manager
                     ct.content_type_name,
                     ct.content_type_description
                 FROM
-                    contents c                    
-                INNER JOIN
-                    content_types ct ON c.id_content_type = ct.id
-                INNER JOIN
+                    contents c
+                LEFT JOIN
                     positions p ON c.id_position = p.id
                 INNER JOIN
+                    content_types ct ON c.id_content_type = ct.id
+                LEFT JOIN
                     pages pg ON p.id_page = pg.id
                 WHERE
                     c.id = :id";
@@ -216,20 +223,24 @@ class EditManager extends Manager
                     ]);
                     $content->setContentType($contentType);
 
-                    $page = new Page([
-                        'id' => $result['page_id'],
-                        'page_name' => $result['page_name'],
-                        'is_home_page' => $result['is_home_page'],
-                        'is_published' => $result['pg_is_published']
-                    ]);
-                    
-                    $position = new Position([
-                        'id' => $result['position_id'],
-                        'position_number' => $result['position_number']
-                    ]);
-                    $position->setPage( $page );
-                    
-                    $content->setPosition($position);
+                    if ($result['position_id'] !== null) {
+                        $page = new Page([
+                            'id' => $result['page_id'],
+                            'page_name' => $result['page_name'],
+                            'is_home_page' => $result['is_home_page'],
+                            'is_published' => $result['pg_is_published']
+                        ]);
+
+                        $position = new Position([
+                            'id' => $result['position_id'],
+                            'position_number' => $result['position_number']
+                        ]);
+                        $position->setPage($page);
+
+                        $content->setPosition($position);
+                    } else {
+                        $content->setPosition(null);
+                    }
 
                     return $content;
                 } else {
@@ -247,6 +258,7 @@ class EditManager extends Manager
             return null;
         }
     }
+
 
     public function getAllContentTypes(): ?array
     {
@@ -321,7 +333,6 @@ class EditManager extends Manager
         }
     }
 
-    // Fonction pour mettre à jour la position de l'ancien contenu à NULL
     private function updateOldContentPosition($newPositionId): void
     {
         $sql = "UPDATE contents SET id_position = NULL WHERE id_position = :newPositionId";
@@ -345,18 +356,22 @@ class EditManager extends Manager
                 ) VALUES (
                     :contentName,
                     :contentDescription,
-                    CURRENT_TIME,
-                    CURRENT_TIME,
+                    CURRENT_TIMESTAMP,
+                    CURRENT_TIMESTAMP,
                     :isPublished,
                     :userId,
                     :positionId,
                     :contentTypeId
                 )";
+
         try {
             $req = $this->dbManager->db->prepare($sql);
 
             // Si getPositionId est égal à 0, affecte NULL à la place
             $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
+
+            // Mettre à jour la position de l'ancien contenu à NULL avant d'insérer le nouveau contenu
+            $this->updateOldContentPosition($positionId);
 
             return $req->execute([
                 'contentName' => $content->getContentName(),
@@ -367,7 +382,27 @@ class EditManager extends Manager
                 'contentTypeId' => $content->getContentType()->getId()
             ]);
         } catch (\PDOException $e) {
-            // Handle the exception as needed
+            // Gérer l'exception selon les besoins
+            echo "Erreur PDO : " . $e->getMessage();
+            return false;
+        }
+    }
+
+
+    public function deleteContentById($contentId): bool
+    {
+        $sql = "DELETE FROM contents WHERE id = :contentId";
+
+        try {
+            $req = $this->dbManager->db->prepare($sql);
+            $req->execute(['contentId' => $contentId]);
+
+            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            $rowCount = $req->rowCount();
+
+            return $rowCount > 0;
+        } catch (\PDOException $e) {
+            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }

@@ -197,8 +197,10 @@
                             <label for="positionId" class="form-label">Position dans la page</label>
                             <select class="form-select" id="positionId" name="position">
                                 
-                                {% if selectedContent.position is defined %}
+                                {% if selectedContent.position.id is defined %}
                                     <option value="{{ selectedContent.getPosition.getId }}" selected>{{ selectedContent.getPosition.getPositionNumber }} : {{ selectedContent.getPosition.getPage.getPageName }}</option>
+                                {% else %}
+                                        <option selected disabled hidden value="">...</option>
                                 {% endif %}
                                 
                                 
@@ -209,8 +211,6 @@
                                     
                                 {% endfor %}
                             </select>
-                           
-                            
                         </div>
                         <div class="col-12">
                             <p class="text-secondary">Contenu créé le {{ selectedContent.getCreationDate }}</p>
@@ -231,7 +231,15 @@
                         <div class="col-12">
                             <button class="btn btn-secondary" type="submit">Modifier</button>
                         </div>
-                        </form>  
+                        </form>
+                        <form class="row p-2 g-3" action="index.php" method="post">
+                            <input type="hidden" value="edit" name="controller">
+                            <input type="hidden" value="deleteContent" name="action">
+                            <input type="hidden" value="{{ selectedContent.getId }}" name="id">
+                            <div class="col-12">
+                                <button class="btn btn-danger" type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?')">Supprimer</button>
+                            </div>
+                        </form>
                     </div>
                 {% endif %}
 
@@ -270,7 +278,10 @@
                         <div class="col-md-12">
                             <label for="positionId" class="form-label">Position dans la page</label>
                             <select class="form-select" id="positionId" name="position">
-                                
+                                <option selected disabled hidden value="">...</option>                              
+                                {% for position in listPositions %}
+                                    <option value="{{ position.getId }}">{{ position.getPositionNumber }} : {{ position.getPage.getPageName }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-12">                            

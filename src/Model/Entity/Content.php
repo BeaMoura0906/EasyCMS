@@ -140,7 +140,7 @@ class Content
         return $this->position;
     }
 
-    public function setPosition(Position $position)
+    public function setPosition(?Position $position)
     {
         $this->position = $position;
     }

@@ -149,6 +149,7 @@ class EditController extends Controller
 
     public function editContentAction()
     {
+        $data = [];
         if( $listContents = $this->_manager->getAllContents() ){
             $data = [
                 'userId' => $this->userId,
@@ -198,9 +199,16 @@ class EditController extends Controller
                 $content->setIsPublished(1);
             } else {
                 $content->setIsPublished(0);
-            }            
-            $position = $this->_manager->getPositionById($_REQUEST['position']);
+            }
+            $idPosition = $_REQUEST['position'];
+            $idPosition = ($idPosition === "") ? null : $idPosition;
+            if ( $idPosition === NULL ) {
+                $position = NULL;
+            } else {
+                $position = $this->_manager->getPositionById($_REQUEST['position']);
+            }       
             $content->setPosition($position);
+            $content->setIdUser($this->userId);
             if($this->_manager->updateContent( $content )) {
                 $message['type'] = 'success';
                 $message['message'] = 'Modification du contenu effectuée !';
@@ -224,6 +232,7 @@ class EditController extends Controller
             'userId' => $this->userId,
             'listContents' => $this->_manager->getAllContents(),
             'listContentTypes'  => $this->_manager->getAllContentTypes(),
+            'listPositions' => $listPositions = $this->_manager->getAllPositions(),
             'createContent' => true
         ]; 
         $this->render('edit', $data);
@@ -247,6 +256,14 @@ class EditController extends Controller
             } else {
                 $content->setIsPublished(0);
             }
+            $idPosition = $_REQUEST['position'];
+            $idPosition = ($idPosition === "") ? null : $idPosition;
+            if ( $idPosition === NULL ) {
+                $position = NULL;
+            } else {
+                $position = $this->_manager->getPositionById($_REQUEST['position']);
+            }       
+            $content->setPosition($position);
             $content->setIdUser($this->userId);
             if($this->_manager->insertContent( $content )) {
                 $message['type'] = 'success';
@@ -262,6 +279,34 @@ class EditController extends Controller
             'message'           => $message,
             'createContent' => true
         ]; 
+        $this->render('edit', $data);
+    }
+
+    public function deleteContentAction()
+    {
+        $message = [
+            'type'      => 'warning',
+            'message'   => 'Erreur lors de la suppression' 
+        ];
+
+        if ( isset($_REQUEST['id']) ) {
+            $id = $_REQUEST['id'];
+            if( $this->_manager->deleteContentById( $id ) ){
+                $message['type'] = 'success';
+                $message['message'] = 'Suppression du contenu effectuée !';
+                $selectedContent = $this->_manager->getContentById($id);
+            }
+        }
+        $listContents = $this->_manager->getAllContents();
+        $listContentTypes = $this->_manager->getAllContentTypes();
+        $data = [
+            'userId'            => $this->userId,
+            'listContents'      => $listContents,
+            'listContentTypes'  => $listContentTypes,
+            'message'           => $message,
+            'selectedContent'   => $selectedContent
+        ];
+
         $this->render('edit', $data);
     }
 
