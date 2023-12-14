@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost
--- Généré le : lun. 30 oct. 2023 à 10:00
+-- Généré le : jeu. 14 déc. 2023 à 13:12
 -- Version du serveur : 5.7.36
 -- Version de PHP : 8.1.0
 
@@ -31,13 +31,23 @@ CREATE TABLE `contents` (
   `id` int(11) NOT NULL,
   `content_name` varchar(255) NOT NULL,
   `content_description` varchar(255) NOT NULL,
-  `creation_date` date NOT NULL,
-  `modification_date` date NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `modification_date` datetime NOT NULL,
   `is_published` tinyint(1) NOT NULL,
   `id_user` int(11) NOT NULL,
   `id_content_type` int(11) NOT NULL,
-  `id_position` int(11) NOT NULL
+  `id_position` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `contents`
+--
+
+INSERT INTO `contents` (`id`, `content_name`, `content_description`, `creation_date`, `modification_date`, `is_published`, `id_user`, `id_content_type`, `id_position`) VALUES
+(1, 'Titre page d\'accueil', 'Accueil', '2023-12-14 14:00:09', '2023-12-14 14:00:09', 1, 1, 1, 2),
+(2, 'Article page d\'accueil', 'Lorem Ipsum', '2023-12-14 13:00:17', '2023-12-14 13:00:17', 1, 1, 2, 3),
+(3, 'Titre Annexe', 'Annexe', '2023-12-14 14:02:05', '2023-12-14 14:02:05', 1, 1, 1, 7),
+(4, 'Article annexe', 'Lorem Ipsum Ipsum', '2023-12-14 14:08:52', '2023-12-14 14:08:52', 0, 1, 2, NULL);
 
 -- --------------------------------------------------------
 
@@ -47,8 +57,19 @@ CREATE TABLE `contents` (
 
 CREATE TABLE `content_types` (
   `id` int(11) NOT NULL,
-  `content_type_name` varchar(255) NOT NULL
+  `content_type_name` varchar(255) NOT NULL,
+  `content_type_description` varchar(200) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `content_types`
+--
+
+INSERT INTO `content_types` (`id`, `content_type_name`, `content_type_description`) VALUES
+(1, 'titre', '<title></title>'),
+(2, 'article', '<article></article>'),
+(3, 'image', '<img src=\"\" alt=\"\"/>'),
+(4, 'lien', '<a href=\"\"></a> ');
 
 -- --------------------------------------------------------
 
@@ -59,13 +80,21 @@ CREATE TABLE `content_types` (
 CREATE TABLE `navigations` (
   `id` int(11) NOT NULL,
   `nav_name` varchar(255) NOT NULL,
-  `creation_date` date NOT NULL,
-  `modification_date` date NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `modification_date` datetime NOT NULL,
   `is_published` tinyint(1) NOT NULL,
   `id_page` int(11) NOT NULL,
   `id_user` int(11) NOT NULL,
-  `id_position` int(11) NOT NULL
+  `id_position` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `navigations`
+--
+
+INSERT INTO `navigations` (`id`, `nav_name`, `creation_date`, `modification_date`, `is_published`, `id_page`, `id_user`, `id_position`) VALUES
+(1, 'Accueil', '2023-12-14 14:10:41', '2023-12-14 14:10:41', 1, 1, 1, NULL),
+(2, 'Annexe', '2023-12-14 14:10:41', '2023-12-14 14:10:41', 1, 2, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -76,13 +105,21 @@ CREATE TABLE `navigations` (
 CREATE TABLE `pages` (
   `id` int(11) NOT NULL,
   `page_name` varchar(255) NOT NULL,
-  `website_name` varchar(255) NOT NULL,
   `is_home_page` tinyint(1) NOT NULL,
-  `creation_date` date NOT NULL,
-  `modification_date` date NOT NULL,
+  `creation_date` datetime NOT NULL,
+  `modification_date` datetime NOT NULL,
   `is_published` tinyint(1) NOT NULL,
   `id_user` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `pages`
+--
+
+INSERT INTO `pages` (`id`, `page_name`, `is_home_page`, `creation_date`, `modification_date`, `is_published`, `id_user`) VALUES
+(1, 'Accueil', 1, '2023-12-14 14:05:19', '2023-12-14 14:05:19', 1, 1),
+(2, 'Annexe', 0, '2023-12-14 14:05:19', '2023-12-14 14:05:19', 1, 1),
+(3, 'Annexe 2', 0, '2023-12-14 14:09:22', '2023-12-14 14:09:22', 0, 1);
 
 -- --------------------------------------------------------
 
@@ -96,6 +133,22 @@ CREATE TABLE `positions` (
   `id_page` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+--
+-- Déchargement des données de la table `positions`
+--
+
+INSERT INTO `positions` (`id`, `position_number`, `id_page`) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 1),
+(4, 4, 1),
+(5, 5, 1),
+(6, 1, 2),
+(7, 2, 2),
+(8, 3, 2),
+(9, 4, 2),
+(10, 5, 2);
+
 -- --------------------------------------------------------
 
 --
@@ -106,6 +159,14 @@ CREATE TABLE `rights` (
   `id` int(11) NOT NULL,
   `right_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Déchargement des données de la table `rights`
+--
+
+INSERT INTO `rights` (`id`, `right_name`) VALUES
+(1, 'admin'),
+(2, 'editor');
 
 -- --------------------------------------------------------
 
@@ -121,6 +182,13 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
+-- Déchargement des données de la table `users`
+--
+
+INSERT INTO `users` (`id`, `login`, `password`, `id_right`) VALUES
+(1, 'test', 'test', 1);
+
+--
 -- Index pour les tables déchargées
 --
 
@@ -129,9 +197,9 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `contents`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uc_id_position` (`id_position`),
   ADD KEY `idx_content_id_user` (`id_user`),
-  ADD KEY `idx_content_id_content_type` (`id_content_type`),
-  ADD KEY `idx_content_id_position` (`id_position`);
+  ADD KEY `idx_content_id_content_type` (`id_content_type`);
 
 --
 -- Index pour la table `content_types`
@@ -183,43 +251,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `contents`
 --
 ALTER TABLE `contents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `content_types`
 --
 ALTER TABLE `content_types`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `navigations`
 --
 ALTER TABLE `navigations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `positions`
 --
 ALTER TABLE `positions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT pour la table `rights`
 --
 ALTER TABLE `rights`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Contraintes pour les tables déchargées
