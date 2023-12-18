@@ -12,6 +12,7 @@ class ProfileController extends Controller
     public function defaultAction()
     {
         if( isset($_SESSION['userId'] ) ){
+            
             $userId = $_SESSION['userId'];
             $data = [
                 'userId' => $userId

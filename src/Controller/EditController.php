@@ -8,6 +8,7 @@ use EasyCMS\src\Model\Entity\Page;
 
 use EasyCMS\src\Model\Entity\Content;
 use EasyCMS\src\Model\Entity\Navigation;
+use EasyCMS\src\Model\Entity\Position;
 
 class EditController extends Controller
 {
@@ -209,7 +210,7 @@ class EditController extends Controller
         }
         $this->render('edit', $data);
     }
-
+   
     public function updateContentValidAction()
     {
         $message = [
@@ -220,9 +221,53 @@ class EditController extends Controller
         if ( isset($_REQUEST['id']) && !empty($_REQUEST['contentName']) && !empty($_REQUEST['contentDescription']) ){
             $content = $this->_manager->getContentById( $_REQUEST['id']);
             $content->setContentName($_REQUEST['contentName']);
-            $content->setContentDescription($_REQUEST['contentDescription']);
             $contentType = $this->_manager->getContentTypeById($_REQUEST['contentType']);
             $content->setContentType($contentType);
+            if( isset($_FILES['img']) ){
+                
+                if( $_FILES['img']['error'] === UPLOAD_ERR_OK ){
+                    $allowedExtensions = ['jpg', 'jpeg', 'png'];
+                    $uploadDir = 'assets/images/';
+                    $uploadFile = $uploadDir . basename($_FILES['img']['name']);
+                    $imageFileType = strtolower(pathinfo($uploadFile, PATHINFO_EXTENSION));
+                    $maxFileSize = 128 * 1024; // 128 Ko
+
+                    // Vérifier la taille du fichier
+                    if ($_FILES['img']['size'] <= $maxFileSize) {
+                        // Vérifier l'extension du fichier
+                        if (in_array($imageFileType, $allowedExtensions)) {
+                            // Déplacer le fichier téléchargé vers le répertoire cible
+                            if (move_uploaded_file($_FILES['img']['tmp_name'], $uploadFile)) {
+                                // Le fichier a été téléchargé avec succès
+
+                                // Enregistrez le nom du fichier dans la description du contenu
+                                $imageName = $_FILES['img']['name'];
+                                $content->setContentDescription($imageName);
+
+                            } else {
+                                // Une erreur s'est produite lors du téléchargement du fichier
+                                $message['type'] = 'warning';
+                                $message['message'] = 'Erreur lors du téléchargement du fichier.';
+                            }
+                        } else {
+                            // Extension de fichier non autorisée
+                            $message['type'] = 'warning';
+                            $message['message'] = 'Seuls les fichiers JPG, JPEG et PNG sont autorisés.';
+                        }
+                    } else {
+                        // Taille de fichier excessive
+                        $message['type'] = 'warning';
+                        $message['message'] = 'La taille du fichier ne doit pas dépasser 128 Ko.';
+                    }
+                } else {
+                    // Aucun fichier téléchargé ou une erreur s'est produite
+                    $message['type'] = 'warning';
+                    $message['message'] = 'La taille du fichier ne doit pas dépasser 128 Ko.';
+                }
+
+            } else {
+                $content->setContentDescription($_REQUEST['contentDescription']);
+            }
             if( isset($_REQUEST['toPublish']) ){
                 $content->setIsPublished(1);
             } else {
@@ -244,10 +289,12 @@ class EditController extends Controller
         }
         $listContents = $this->_manager->getAllContents();
         $listContentTypes = $this->_manager->getAllContentTypes();
+        $listPositions = $this->_manager->getAllPositions();
         $data = [
             'userId'            => $this->userId,
             'listContents'      => $listContents,
             'listContentTypes'  => $listContentTypes,
+            'listPositions'     => $listPositions,
             'message'           => $message,
             'selectedContent'   => $content
         ]; 
@@ -260,7 +307,7 @@ class EditController extends Controller
             'userId' => $this->userId,
             'listContents' => $this->_manager->getAllContents(),
             'listContentTypes'  => $this->_manager->getAllContentTypes(),
-            'listPositions' => $listPositions = $this->_manager->getAllPositions(),
+            'listPositions' => $this->_manager->getAllPositions(),
             'createContent' => true
         ]; 
         $this->render('edit', $data);
@@ -283,10 +330,12 @@ class EditController extends Controller
         }
         $listContents = $this->_manager->getAllContents();
         $listContentTypes = $this->_manager->getAllContentTypes();
+        $listPositions = $this->_manager->getAllPositions();
         $data = [
             'userId'            => $this->userId,
             'listContents'      => $listContents,
             'listContentTypes'  => $listContentTypes,
+            'listPositions'     => $listPositions,
             'message'           => $message,
             'selectedContent'   => $selectedContent
         ];
@@ -312,14 +361,17 @@ class EditController extends Controller
             } else {
                 $content->setIsPublished(0);
             }
-            $idPosition = $_REQUEST['position'];
-            $idPosition = ($idPosition === "") ? null : $idPosition;
-            if ( $idPosition === NULL ) {
-                $position = NULL;
-            } else {
-                $position = $this->_manager->getPositionById($_REQUEST['position']);
-            }       
+            $position = new Position([]);
+            if( isset($_REQUEST['position']) ){
+                $idPosition = $_REQUEST['position'];
+                $idPosition = ($idPosition === "") ? 0 : $idPosition;
+                if ( $idPosition != 0 ) {
+                    $position = $this->_manager->getPositionById($_REQUEST['position']);
+                }                   
+            }
             $content->setPosition($position);
+            var_dump($_SESSION['userId']);
+
             $content->setIdUser($this->userId);
             if($this->_manager->insertContent( $content )) {
                 $message['type'] = 'success';
@@ -328,10 +380,12 @@ class EditController extends Controller
         }
         $listContents = $this->_manager->getAllContents();
         $listContentTypes = $this->_manager->getAllContentTypes();
+        $listPositions = $this->_manager->getAllPositions();
         $data = [
             'userId'            => $this->userId,
             'listContents'      => $listContents,
             'listContentTypes'  => $listContentTypes,
+            'listPositions'     => $listPositions,
             'message'           => $message,
             'createContent' => true
         ]; 

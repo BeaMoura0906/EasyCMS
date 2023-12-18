@@ -10,27 +10,33 @@
             </div>
         </div>
 
-        <div class="row">
-            
+        <div class="row">            
             <div class="col-4">
                 <div class="card m-2">
-                    <div class="card-body bg-primary-subtle" style="width: ">
+                    {% if listPages is defined %}
+                        {% set isSelectedPages = true %}
+                    {% endif %}
+                    <div class="card-body {% if isSelectedPages %} bg-primary-subtle {% else %} bg-body-tertiary {% endif %}">
                         <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=editPage">Éditer les pages</a></h5>
                     </div>
                 </div>
-            </div>
-            
+            </div>            
             <div class="col-4">
                 <div class="card m-2">
-                    <div class="card-body bg-primary-subtle">
+                    {% if listContents is defined %}
+                        {% set isSelectedContents = true %}
+                    {% endif %}
+                    <div class="card-body {% if isSelectedContents %} bg-primary-subtle {% else %} bg-body-tertiary {% endif %}">
                         <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=editContent">Éditer les contenus</a></h5>
                     </div>
                 </div>
-            </div>
-            
+            </div>            
             <div class="col-4">
                 <div class="card m-2">
-                    <div class="card-body bg-primary-subtle">
+                    {% if listNavigations is defined %}
+                        {% set isSelectedNav = true %}
+                    {% endif %}
+                    <div class="card-body {% if isSelectedNav %} bg-primary-subtle {% else %} bg-body-tertiary {% endif %}">
                         <h5><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=editNav">Éditer la navigation</a></h5>
                     </div>
                 </div>
@@ -43,11 +49,17 @@
             <div class="row text-start mt-3">
                 <div class="col-4 p-2">
                     <h5 class="p-2">Selectionnez la page à modifier</h5>
+                    
+
                     <ul class="list-group">
                         {% for page in listPages %}
-                            <li class="list-group-item"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updatePage&pageId={{ page.getId }}">{{ page.getPageName }}</a></li>
+                            {% set isSelected = (selectedPage is defined and selectedPage.id == page.id) %}
+                            <li class="list-group-item {% if isSelected %} selected{% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updatePage&pageId={{ page.getId }}">{{ page.getPageName }}</a></li>
                         {% endfor %}
-                        <li class="list-group-item bg-body-tertiary"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createPage">Créer une nouvelle page</a></li>
+                        {% if createPage is defined %}
+                            {% set isSelected = true %}
+                        {% endif %}
+                        <li class="list-group-item {% if isSelected %} selected {% else %} bg-body-tertiary {% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createPage">Créer une nouvelle page</a></li>
                     </ul>
                 </div>
 
@@ -162,9 +174,13 @@
                     <h5 class="p-2">Selectionnez le contenu à modifier</h5>
                     <ul class="list-group">
                         {% for content in listContents %}
-                            <li class="list-group-item"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateContent&contentId={{ content.getId }}">{{ content.getContentName }}</a></li>
+                            {% set isSelected = (selectedContent is defined and selectedContent.id == content.id) %}
+                            <li class="list-group-item {% if isSelected %} selected{% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateContent&contentId={{ content.getId }}">{{ content.getContentName }}</a></li>
                         {% endfor %}
-                        <li class="list-group-item bg-body-tertiary"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createContent">Créer un nouveau contenu</a></li>
+                        {% if createContent is defined %}
+                            {% set isSelected = true %}
+                        {% endif %}
+                        <li class="list-group-item {% if isSelected %} selected {% else %} bg-body-tertiary {% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createContent">Créer un nouveau contenu</a></li>
                     </ul>
                 </div>
 
@@ -176,7 +192,7 @@
                             {{ message.message }}
                         </div>                        
                         {% endif %}
-                        <form class="row ps-2 g-3" action="index.php" method="post">
+                        <form class="row ps-2 g-3" action="index.php" method="post" enctype="multipart/form-data">
                         {% if selectedContent.getId is defined %}
                             {% set action = 'updateContentValid' %}
                             <input type="hidden" value="{{ selectedContent.getId }}" name="id">
@@ -192,16 +208,39 @@
                             <input type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="{{ selectedContent.getContentDescription }}" required>
                         </div>
                         <div class="col-md-12">
+                            <!-- Rajouter téléchargement image -->
                             <label for="contentTypeId" class="form-label">Type de contenu</label>
                             <select class="form-select" id="contentTypeId" name="contentType" required>
-                                <option value="{{ selectedContent.getContentType.getId }}" selected>{{ selectedContent.getContentType.getContentTypeName }} : {{ selectedContent.getContentType.getContentTypeDescription }}</option>
+                                <option value="{{ selectedContent.getContentType.getId }}" selected>
+                                    {{ selectedContent.getContentType.getContentTypeName }} : {{ selectedContent.getContentType.getContentTypeDescription }}
+                                </option>
+                                {% set imgForm = false %}
                                 {% for contentType in listContentTypes %}
-                                    {% if contentType.getId != selectedContent.getContentType.getId %}
-                                        <option value="{{ contentType.getId }}">{{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}</option>
+                                    {% if selectedContent.getContentType.getId != contentType.getId %}                                    
+                                        {% if contentType.getId == 3 %}
+                                            <option value="{{ contentType.getId }}">
+                                                {{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}
+                                            </option>
+                                            {% set imgForm = true %}
+                                        {% else %}
+                                            <option value="{{ contentType.getId }}">
+                                                {{ contentType.getContentTypeName }} : {{ contentType.getContentTypeDescription }}
+                                            </option>
+                                        {% endif %}
                                     {% endif %}
                                 {% endfor %}
                             </select>
                         </div>
+
+                        {# {% if imgForm == true %} #}
+                            <div class="mb-3">
+                                <label for="formFile" class="form-label">Choisir une <strong>image</strong> au format jpg, jpeg ou png et ne dépassant pas 128Ko</label>
+                                <input class="form-control" type="file" id="formFile" name="img">
+                            </div>
+                        {# {% endif %} #}
+
+
+
                         <div class="col-md-12">
                             <label for="positionId" class="form-label">Position dans la page</label>
                             <select class="form-select" id="positionId" name="position">
@@ -317,9 +356,13 @@
                     <h5 class="p-2">Selectionnez la navigation à modifier</h5>
                     <ul class="list-group">
                         {% for navigation in listNavigations %}
-                            <li class="list-group-item"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateNav&navId={{ navigation.getId }}">{{ navigation.getNavName }}</a></li>
+                            {% set isSelected = (selectedNav is defined and selectedNav.id == navigation.id) %}
+                            <li class="list-group-item {% if isSelected %} selected{% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=updateNav&navId={{ navigation.getId }}">{{ navigation.getNavName }}</a></li>
                         {% endfor %}
-                        <li class="list-group-item bg-body-tertiary"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createNav">Créer une nouvelle navigation</a></li>
+                        {% if createNav is defined %}
+                            {% set isSelected = true %}
+                        {% endif %}
+                        <li class="list-group-item {% if isSelected %} selected {% else %} bg-body-tertiary {% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit&action=createNav">Créer une nouvelle navigation</a></li>
                     </ul>
                 </div>
 

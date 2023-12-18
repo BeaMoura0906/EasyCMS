@@ -48,6 +48,7 @@ class IndexController extends Controller
                 $data = [
                     'userId' => $userId
                 ]; 
+                
                 $this->render('index', $data);
             } else {
                 $loginSpace = true;

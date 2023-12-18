@@ -47,19 +47,25 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-12">
-                    {% for content in listContentsOfHomePage %}
-                        {% if content.contentType.id == 1 %}
-                            <h3 class="m-3">{{ content.contentDescription }}</h3>
-                        {% elseif content.contentType.id == 3 %}
-                            <img src="{{ content.contentDescription }}" class="img-fluid m-3" alt="{{ content.contentName }}"/>
-                        {% elseif content.contentType.id == 4 %}
-                            <a href="{{ content.contentDescription }}" class="link-underline-primary m-3">{{ content.contentName }}</a>
-                        {% elseif content.contentType.id == 2 %}
-                            <article class="m-3">{{ content.contentDescription }}</article>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+                {% for content in listContentsOfHomePage %}
+                    {% if content.contentType.id == 1 %}
+                    <div class="col-12">
+                        <h3 class="m-3">{{ content.contentDescription }}</h3>
+                    </div>
+                    {% elseif content.contentType.id == 2 %}
+                    <div class="col-12">
+                        <article class="m-3">{{ content.contentDescription }}</article>
+                    </div>
+                    {% elseif content.contentType.id == 3 %}
+                    <div class="col-12">
+                        <img src="assets/images/{{content.contentDescription}}" class="m-3" alt="{{content.contentName}}" style="width: 40em; height: auto;"/>
+                    </div>
+                    {% elseif content.contentType.id == 4 %}
+                    <div class="col-12">
+                        <a href="{{content.contentDescription}}" class="link-underline-primary m-3">{{content.contentName}}</a>                      
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>        
         {% endif %}
         {% if page is defined %}
