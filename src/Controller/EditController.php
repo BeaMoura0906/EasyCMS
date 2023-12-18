@@ -218,11 +218,13 @@ class EditController extends Controller
             'message'   => 'Erreur lors de la modification' 
         ];
 
+        $content = null;
         if ( isset($_REQUEST['id']) && !empty($_REQUEST['contentName']) && !empty($_REQUEST['contentDescription']) ){
             $content = $this->_manager->getContentById( $_REQUEST['id']);
             $content->setContentName($_REQUEST['contentName']);
             $contentType = $this->_manager->getContentTypeById($_REQUEST['contentType']);
             $content->setContentType($contentType);
+            $content->setContentDescription($_REQUEST['contentDescription']);
             if( isset($_FILES['img']) ){
                 
                 if( $_FILES['img']['error'] === UPLOAD_ERR_OK ){
@@ -265,9 +267,9 @@ class EditController extends Controller
                     $message['message'] = 'La taille du fichier ne doit pas dépasser 128 Ko.';
                 }
 
-            } else {
-                $content->setContentDescription($_REQUEST['contentDescription']);
             }
+                
+            
             if( isset($_REQUEST['toPublish']) ){
                 $content->setIsPublished(1);
             } else {
