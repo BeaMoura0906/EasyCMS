@@ -275,13 +275,14 @@ class EditController extends Controller
             } else {
                 $content->setIsPublished(0);
             }
-            $idPosition = $_REQUEST['position'];
-            $idPosition = ($idPosition === "") ? null : $idPosition;
-            if ( $idPosition === NULL ) {
-                $position = NULL;
-            } else {
-                $position = $this->_manager->getPositionById($_REQUEST['position']);
-            }       
+            $position = new Position([]);
+            if( isset($_REQUEST['position']) ){
+                $idPosition = $_REQUEST['position'];
+                $idPosition = ($idPosition === "") ? 0 : $idPosition;
+                if ( $idPosition != 0 ) {
+                    $position = $this->_manager->getPositionById($_REQUEST['position']);
+                }                   
+            }
             $content->setPosition($position);
             $content->setIdUser($this->userId);
             if($this->_manager->updateContent( $content )) {
@@ -372,7 +373,6 @@ class EditController extends Controller
                 }                   
             }
             $content->setPosition($position);
-            var_dump($_SESSION['userId']);
 
             $content->setIdUser($this->userId);
             if($this->_manager->insertContent( $content )) {

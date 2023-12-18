@@ -333,7 +333,7 @@ class EditManager extends Manager
             // Si getPositionId est égal à 0, affecte NULL à la place
             $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
-            // Mettre à jour la position de l'ancien contenu à NULL avant d'affecter la nouvelle position
+            // Mettre à jour la position de l'ancien contenu à NULL avant d'insérer le nouveau contenu
             $this->updateOldContentPosition($positionId);
 
             return $req->execute([
