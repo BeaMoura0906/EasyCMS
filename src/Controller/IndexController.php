@@ -49,7 +49,7 @@ class IndexController extends Controller
                     'userId' => $userId
                 ]; 
                 
-                $this->render('index', $data);
+                $this->render('profile', $data);
             } else {
                 $loginSpace = true;
                 $data = [

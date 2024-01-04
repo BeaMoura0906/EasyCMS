@@ -70,7 +70,7 @@ class EditManager extends Manager
         return false;
     }
 
-    public function insertPage(Page $page): ?bool
+    public function insertPage(Page $page): ?Page
     {
         $sql = "INSERT INTO pages (
                     page_name,
@@ -94,8 +94,26 @@ class EditManager extends Manager
             ':isPublished'  => intval($page->getIsPublished()),
             ':userId'       => $page->getIdUser()
         ]);
-        return $state;
         
+        if( !$state ) {
+            return false;
+        } else {
+            $idPage = $this->dbManager->db->lastInsertId();
+            $page->setId($idPage);
+            $positionNumbers = [1, 2, 3, 4];
+
+            foreach ($positionNumbers as $positionNumber) {
+                $sqlInsertPosition = "INSERT INTO positions (id_page, position_number) VALUES (:pageId, :positionNumber)";
+                $stmtInsertPosition = $this->dbManager->db->prepare($sqlInsertPosition);
+
+                $stmtInsertPosition->bindParam(':pageId', $idPage);
+                $stmtInsertPosition->bindParam(':positionNumber', $positionNumber);
+
+                $stmtInsertPosition->execute();
+            }
+
+            return $page;
+        }  
     }
 
     public function deletePageById($pageId): bool
