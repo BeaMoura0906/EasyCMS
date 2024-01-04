@@ -19,7 +19,8 @@
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    {% if userId is defined %}
+                    {% if session.userId is defined %}
+                    
                         <li class="nav-item">
                             <a class="nav-link" href="index.php?controller=profile"><strong>Tableau de bord</strong></a>
                         </li>

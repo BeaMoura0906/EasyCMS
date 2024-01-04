@@ -10,7 +10,7 @@
         </div>
         
         <div class="row justify-content-evenly">
-            <div class="col-4">
+            <div class="col-4 d-flex justify-content-center">
                 <div class="card m-5" style="width: 24rem;">
                     <img src="assets/images/background-image-viewsite.jpg" class="card-img-top" alt="Backgroung Picture - View your website" style="height: 18rem;">
                     <div class="card-body bg-success-subtle">
@@ -18,14 +18,24 @@
                     </div>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-4 d-flex justify-content-center">
                 <div class="card m-5" style="width: 24rem;">
                     <img src="assets/images/background-image-editweb.jpg" class="card-img-top" alt="Backgroung Picture - Edit pages and contents" style="height: 18rem;">
                     <div class="card-body bg-warning-subtle">
                         <h4 class="p-2 py-4"><a class=" link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=edit">Éditer les pages et contenus</a></h4> 
                     </div>
                 </div>
-            </div>           
+            </div>
+            {% if session.userIdRight == 1 %}
+            <div class="col-4 d-flex justify-content-center">
+                <div class="card m-5" style="width: 24rem;">
+                    <img src="assets/images/backgroung-picture-admin.jpg" class="card-img-top" alt="Backgroung Picture - Edit pages and contents" style="height: 18rem;">
+                    <div class="card-body bg-danger-subtle">
+                        <h4 class="p-2 py-4"><a class=" link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=user">Gérer les utilisateurs</a></h4> 
+                    </div>
+                </div>
+            </div>
+            {% endif %}   
         </div>
     </div>
 

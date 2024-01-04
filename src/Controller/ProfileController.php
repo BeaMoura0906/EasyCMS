@@ -13,12 +13,8 @@ class ProfileController extends Controller
     {
         if( isset($_SESSION['userId'] ) ){
             
-            $userId = $_SESSION['userId'];
-            $data = [
-                'userId' => $userId
-            ]; 
-            $this->render('profile', $data);
-        }
+            $this->render('profile');
+        } 
         
     }
 }

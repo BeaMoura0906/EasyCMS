@@ -18,6 +18,7 @@ abstract class Controller
         $this->twig = new Environment( $loader, [
             'debug' => true
         ]);
+        $this->twig->addGlobal('session', $_SESSION);
         $this->twig->addExtension(new DebugExtension());
 
         if ( isset($_REQUEST['action']) ) {

@@ -7,17 +7,10 @@ use EasyCMS\src\Model\WebsiteManager;
 class WebsiteController extends Controller
 {
     private $_manager;
-    private $userId;
 
     public function __construct()
     {
         $this->_manager = new WebsiteManager();
-        if( isset( $_SESSION['userId'] ) ){
-            $this->userId = $_SESSION['userId'];
-        } else {
-            $this->userId = null;
-        }
-        
         parent::__construct();
     }
 
@@ -32,7 +25,6 @@ class WebsiteController extends Controller
                 });
                 if( $listNav = $this->_manager->getAllPublishedNav() ){
                     $data = [
-                        'userId'                    => $this->userId,
                         'homePage'                  => $homePage,
                         'listContentsOfHomePage'    => $listContentsOfHomePage,
                         'listNav'                   => $listNav
@@ -61,7 +53,6 @@ class WebsiteController extends Controller
             
         }
         $data = [
-            'userId'                    => $this->userId,
             'listNav'                   => $this->_manager->getAllPublishedNav(),
             'page'                      => $page,
             'listContents'              => $listContents

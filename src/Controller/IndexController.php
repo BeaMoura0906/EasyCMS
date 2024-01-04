@@ -17,11 +17,7 @@ class IndexController extends Controller
     public function defaultAction()
     {
         if( isset($_SESSION['userId'] ) ){
-                $userId = $_SESSION['userId'];
-                $data = [
-                    'userId' => $userId
-                ]; 
-                $this->render('index', $data);
+                $this->render('index');
         } else {
             $this->render('index');
         }
@@ -42,14 +38,16 @@ class IndexController extends Controller
         if( isset($_REQUEST['login']) && isset($_REQUEST['password']) ){
             $login = $_REQUEST['login'];
             $password = $_REQUEST['password'];
-            $userId = $this->_manager->loginVerify($login, $password);
-            if( $userId ){
-                $_SESSION['userId'] = $userId;
+            $user = $this->_manager->loginVerify($login, $password);
+            if( $user ){
+                $_SESSION['userId'] = $user->getId();
+                $_SESSION['userLogin'] = $user->getLogin();
+                $_SESSION['userIdRight'] = $user->getIdRight();
                 $data = [
-                    'userId' => $userId
+                    'user' => $user
                 ]; 
-                
-                $this->render('profile', $data);
+                header('Location:index.php?controller=profile');
+                exit;
             } else {
                 $loginSpace = true;
                 $data = [
@@ -68,6 +66,7 @@ class IndexController extends Controller
     public function logoutAction()
     {
         session_destroy();
-        $this->render('index');
+        header('Location: .');
+        exit;
     }
 }

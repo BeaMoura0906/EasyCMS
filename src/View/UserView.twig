@@ -1,0 +1,35 @@
+{% extends "Base.twig" %}
+
+{% block main %}
+    <div class="container-fluid text-center">
+
+        <div class="row">
+            <div class="col-12 h2 p-5">
+                Panneau d'administration
+            </div>
+        </div>
+
+        {% if listUsers is defined %}
+        
+            <div class="row text-start mt-3">
+                <div class="col-4 p-2">
+                    <h5 class="p-2">Liste des utilisateurs</h5>
+                    
+
+                    <ul class="list-group">
+                        {% for user in listUsers %}
+                            {% set isSelected = (selectedUser is defined and selectedUser.id == user.id) %}
+                            <li class="list-group-item {% if isSelected %} selected{% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=user&action=updateUser&userId={{ user.id }}">{{ user.login }}</a></li>
+                        {% endfor %}
+                        {% if createUser is defined %}
+                            {% set isSelected = true %}
+                        {% endif %}
+                        <li class="list-group-item {% if isSelected %} selected {% else %} bg-body-tertiary {% endif %}"><a class="link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=user&action=createUser">Ajouter un utilisateur</a></li>
+                    </ul>
+                </div>
+            </div>
+
+        {% endif %}
+
+    </div>
+{% endblock %}
