@@ -7,6 +7,7 @@ use EasyCMS\src\Model\IndexManager;
 class IndexController extends Controller
 {
     private $_manager;
+    private $userManager;
 
     public function __construct()
     {
@@ -35,31 +36,37 @@ class IndexController extends Controller
 
     public function verifyLoginAction()
     {
-        if( isset($_REQUEST['login']) && isset($_REQUEST['password']) ){
-            $login = $_REQUEST['login'];
-            $password = $_REQUEST['password'];
-            $user = $this->_manager->loginVerify($login, $password);
-            if( $user ){
-                $_SESSION['userId'] = $user->getId();
-                $_SESSION['userLogin'] = $user->getLogin();
-                $_SESSION['userIdRight'] = $user->getIdRight();
-                $data = [
-                    'user' => $user
-                ]; 
-                header('Location:index.php?controller=profile');
-                exit;
+        $data=[];
+        if( isset( $_POST['login'] ) && isset( $_POST['password'] ) ) {
+ 
+            if( $user = $this->_manager->getUserByLogin( $_POST['login'] ) ) {
+                if( sodium_crypto_pwhash_str_verify( $user->getPassword('password'), $_POST['password']) ) {
+                    $_SESSION['userId'] = $user->getId();
+                    $_SESSION['userLogin'] = $user->getLogin();
+                    $_SESSION['userIdRight'] = $user->getIdRight();
+                    $data = [
+                        'user' => $user
+                    ]; 
+                    header('Location:index.php?controller=profile');
+                    exit;
+                } else {
+                    $_SESSION['login'] = $user->getLogin();
+                    $data['message'] = [
+                        'type'  => 'warning',
+                        'message'  => 'Le mot de passe est incorrect'
+                    ];
+                    $data['loginSpace'] = true;
+                }
             } else {
-                $loginSpace = true;
-                $data = [
-                    'loginSpace' => $loginSpace,
-                    'message' => [
-                        'type' => 'warning',
-                        'message' => 'Erreur lors de la connexion !' 
-                    ]
+                $data['message'] = [
+                    'type'  => 'warning',
+                    'message'  => 'Le login est incorrect'
                 ];
-                $this->render('index', $data);
+                $data['loginSpace'] = true;
             }
         } 
+
+        $this->render('index', $data);
 
     }
 
