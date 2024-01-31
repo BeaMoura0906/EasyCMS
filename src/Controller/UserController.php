@@ -148,17 +148,19 @@ class UserController extends Controller
             $id = $_REQUEST['id'];
             if( $this->_manager->deleteUserById( $id ) ){
                 $message['type'] = 'success';
-                $message['message'] = 'Suppression de la page effectuée !';
+                $message['message'] = 'Suppression de l\'utilisateur effectuée !';
                 $selectedUser = null;
             } else {
                 $selectedUser = $this->_manager->getUserById($id);
             }
         } 
-        $data['listUsers'] = $this->_manager->getAllUsers();
-        $data['listRights'] = $this->_manager->getAllRights();  
+        $listUsers = $this->_manager->getAllUsers();
+        $listRights = $this->_manager->getAllRights();  
         $data = [
             'message'           => $message,
-            'selectedUser'      => $selectedUser
+            'selectedUser'      => $selectedUser,
+            'listUsers'         => $listUsers,
+            'listRights'        => $listRights
         ];
 
         $this->render('user', $data);
