@@ -5,8 +5,18 @@ namespace EasyCMS\src\Model;
 use EasyCMS\src\Model\Entity\User;
 use EasyCMS\src\Model\Entity\Right;
 
+/**
+ * Class UserManager
+ * 
+ * The UserManager class handles database operations related to users and rights.
+ */
 class UserManager extends Manager
 {
+    /**
+     * Retrieve all users from the database.
+     *
+     * @return array|null An array of User objects if users are found, or null if no users are found or an error occurs.
+     */
     public function getAllUsers(): ?array
     {
         $listUsers = [];
@@ -27,6 +37,12 @@ class UserManager extends Manager
         }
     }
 
+    /**
+     * Retrieve a user from the database by their ID.
+     *
+     * @param int $id The ID of the user to retrieve.
+     * @return User|null The User object if found, or null if not found or an error occurs.
+     */
     public function getUserById($id): ?User
     {
         $sql = "SELECT * FROM users WHERE id=:id";
@@ -40,6 +56,11 @@ class UserManager extends Manager
         }
     }
 
+    /**
+     * Retrieve all rights from the database.
+     *
+     * @return array|null An array of Right objects if rights are found, or null if no rights are found or an error occurs.
+     */
     public function getAllRights(): ?array
     {
         $listRights = [];
@@ -60,6 +81,12 @@ class UserManager extends Manager
         }
     }
 
+    /**
+     * Update a user's information in the database.
+     *
+     * @param User $user The User object containing updated information.
+     * @return bool|null True if the update is successful, false if unsuccessful, or null if the provided User object is null.
+     */
     public function updateUser(User $user): ?bool
     {
         if( $user ) {
@@ -84,6 +111,12 @@ class UserManager extends Manager
         return false;
     }
 
+    /**
+     * Delete a user from the database by their ID.
+     *
+     * @param int $id The ID of the user to delete.
+     * @return bool True if the deletion is successful, false otherwise.
+     */
     public function deleteUserById($id): bool
     {
         $sql = "DELETE FROM users WHERE id =:id";
@@ -92,17 +125,22 @@ class UserManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
             $req->execute(['id' => $id]);
 
-            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            // Check the number of affected rows to confirm deletion
             $rowCount = $req->rowCount();
 
             return $rowCount > 0;
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Insert a new user into the database.
+     *
+     * @param User $user The User object representing the new user to insert.
+     * @return User|null The User object with the newly inserted ID if successful, or null if unsuccessful.
+     */
     public function insertUser(User $user): ?User
     {
         $sql = "INSERT INTO users (

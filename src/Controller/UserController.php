@@ -6,10 +6,23 @@ use EasyCMS\src\Model\UserManager;
 use EasyCMS\src\Model\Entity\User;
 use EasyCMS\src\Model\Entity\Right;
 
+
+/**
+ * Class UserController
+ *
+ * This class handles user-related actions such as viewing, creating, updating, and deleting users.
+ */
 class UserController extends Controller
 {
+    /** 
+     * @var UserManager $_manager The user manager instance 
+     * */
     private $_manager;
 
+    /**
+     * UserController constructor.
+     * Initializes the user manager.
+     */
     public function __construct()
     {
         $this->_manager = new UserManager();
@@ -17,6 +30,12 @@ class UserController extends Controller
         parent::__construct();
     }
 
+    /**
+     * Default action method.
+     * 
+     * Displays the list of users if the logged-in user has admin rights.
+     * Otherwise, redirects to the home page.
+     */
     public function defaultAction()
     {
         if( isset( $_SESSION['userId'] ) && $_SESSION['userIdRight'] == 1){
@@ -32,6 +51,12 @@ class UserController extends Controller
         
     }
 
+    /**
+     * Verifies the password based on specified conditions.
+     * @param string $password The password to verify.
+     * @param string $passwordConfirm The confirmation of the password.
+     * @return array|null Returns an array with a warning message if the password doesn't meet the conditions or if the confirmation doesn't match, otherwise returns null.
+     */
     public function verifPassword($password, $passwordConfirm): ?array
     {
         if (strlen($password) < 8 || 
@@ -55,6 +80,11 @@ class UserController extends Controller
 
     }
 
+    /**
+     * Hashes the password using the sodium_crypto_pwhash_str function.
+     * @param string $password The password to hash.
+     * @return string|null Returns the hashed password or null if hashing fails.
+     */
     public function hashPassword($password): ?string
     {
         $passHash = sodium_crypto_pwhash_str(
@@ -66,6 +96,9 @@ class UserController extends Controller
         return $passHash;
     }
 
+    /**
+     * Renders the form to update a user.
+     */
     public function updateUserAction()
     {
         
@@ -87,6 +120,9 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Validates and updates user information based on POST data.
+     */
     public function updateUserValidAction()
     {
         $data = [];
@@ -137,6 +173,10 @@ class UserController extends Controller
         $this->render('user', $data);
     }
 
+    /**
+     * Deletes a user.
+     * Renders the user management page with appropriate message and data.
+     */
     public function deleteUserAction()
     {
         $message = [
@@ -166,6 +206,9 @@ class UserController extends Controller
         $this->render('user', $data);
     }
 
+    /**
+     * Renders the form to create a new user.
+     */
     public function createUserAction()
     {
         $data = [
@@ -176,6 +219,9 @@ class UserController extends Controller
         $this->render('user', $data);
     }
 
+    /**
+     * Validates and processes the form data to create a new user.
+     */
     public function createUserValidAction()
     {
         $data = [];

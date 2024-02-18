@@ -8,9 +8,19 @@ use EasyCMS\src\Model\Entity\ContentType;
 use EasyCMS\src\Model\Entity\Navigation;
 use EasyCMS\src\Model\Entity\Position;
 
+/**
+ * Class EditManager
+ *
+ * The EditManager class extends the Manager class and provides methods for editing entities like pages and contents in the database.
+ */
 class EditManager extends Manager 
 {
 
+    /**
+     * Retrieves all pages from the database.
+     *
+     * @return array|null An array of Page objects if pages are found, otherwise null.
+     */
     public function getAllPages(): ?array
     {
         $listPages = [];
@@ -31,6 +41,12 @@ class EditManager extends Manager
         }
     }
 
+    /**
+     * Retrieves a page by its ID from the database.
+     *
+     * @param int $id The ID of the page to retrieve.
+     * @return Page|null A Page object if found, otherwise null.
+     */
     public function getPageById($id): ?Page
     {
         $sql = "SELECT * FROM pages WHERE id=:id";
@@ -44,6 +60,12 @@ class EditManager extends Manager
         }
     }
 
+    /**
+     * Updates a page in the database.
+     *
+     * @param Page $page The Page object to update.
+     * @return bool|null True if the update is successful, otherwise false.
+     */
     public function updatePage(Page $page): ?bool
     {
         if( $page ) {
@@ -70,6 +92,12 @@ class EditManager extends Manager
         return false;
     }
 
+    /**
+     * Insert a new page into the database.
+     *
+     * @param Page $page The Page object to insert.
+     * @return Page|false The inserted Page object with its ID set, or false if insertion fails.
+     */
     public function insertPage(Page $page): ?Page
     {
         $sql = "INSERT INTO pages (
@@ -116,6 +144,12 @@ class EditManager extends Manager
         }  
     }
 
+    /**
+     * Delete a page from the database by its ID.
+     *
+     * @param int $pageId The ID of the page to delete.
+     * @return bool True if the deletion is successful, false otherwise.
+     */
     public function deletePageById($pageId): bool
     {
         $sql = "DELETE FROM pages WHERE id = :pageId";
@@ -124,17 +158,22 @@ class EditManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
             $req->execute(['pageId' => $pageId]);
 
-            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            // Check the number of affected rows to confirm deletion
             $rowCount = $req->rowCount();
 
             return $rowCount > 0;
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
+            // Handle the PDO exception as needed
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Retrieve all contents from the database along with their associated information.
+     *
+     * @return array|null An array of Content objects representing all contents in the database, or null if an error occurs.
+     */
     public function getAllContents(): ?array
     {
         $sql = "SELECT
@@ -179,7 +218,7 @@ class EditManager extends Manager
                     ]);
                     $content->setContentType($contentType);
 
-                    // Vérifier si id_position est NULL
+                    // Check if the content is associated with a position
                     if ($result['position_id'] !== null) {
                         $page = new Page([
                             'id' => $result['page_id'],
@@ -194,7 +233,7 @@ class EditManager extends Manager
                         ]);
                         $content->setPosition($position);
                     } else {
-                        // Si id_position est NULL, position est NULL
+                        // If the content is not associated with a position, set position to null
                         $content->setPosition(null);
                     }
 
@@ -203,18 +242,21 @@ class EditManager extends Manager
 
                 return $listContents;
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
+            // Handle the PDO exception if needed
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
     }
 
-
+    /**
+     * Retrieve a content by its ID from the database along with its associated information.
+     *
+     * @param int $id The ID of the content to retrieve.
+     * @return Content|null A Content object representing the retrieved content, or null if not found or an error occurs.
+     */
     public function getContentById($id): ?Content
     {
         $sql = "SELECT
@@ -281,22 +323,23 @@ class EditManager extends Manager
 
                     return $content;
                 } else {
-                    // Aucun résultat trouvé pour l'ID spécifié
+                    // No result found for the specified ID
                     return null;
                 }
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
     }
 
-
+    /**
+     * Retrieve all content types from the database.
+     *
+     * @return array|null An array of ContentType objects representing all content types in the database, or null if an error occurs.
+     */
     public function getAllContentTypes(): ?array
     {
         $listContentTypes = [];
@@ -317,6 +360,12 @@ class EditManager extends Manager
         }
     }
 
+    /**
+     * Retrieve a content type by its ID from the database.
+     *
+     * @param int $id The ID of the content type to retrieve.
+     * @return ContentType|null A ContentType object representing the retrieved content type, or null if not found or an error occurs.
+     */
     public function getContentTypeById($id): ?ContentType
     {
         $sql = "SELECT * FROM content_types WHERE id=:id";
@@ -330,7 +379,12 @@ class EditManager extends Manager
         }
     }
 
-
+    /**
+     * Update a content in the database.
+     *
+     * @param Content $content The content object to update.
+     * @return bool True if the update was successful, false otherwise.
+     */
     public function updateContent(Content $content): bool
     {
         $sql = "UPDATE contents
@@ -348,10 +402,10 @@ class EditManager extends Manager
         try {
             $req = $this->dbManager->db->prepare($sql);
 
-            // Si getPositionId est égal à 0, affecte NULL à la place
+            // Set position ID to NULL if it's 0
             $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
-            // Mettre à jour la position de l'ancien contenu à NULL avant d'insérer le nouveau contenu
+            // Update the position of the old content to NULL before inserting the new content
             $this->updateOldContentPosition($positionId);
 
             return $req->execute([
@@ -364,12 +418,17 @@ class EditManager extends Manager
                 'contentTypeId' => $content->getContentType()->getId()
             ]);
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Update the position of old content to NULL.
+     *
+     * @param int|null $newPositionId The ID of the new position, or NULL if there's no new position.
+     * @return void
+     */
     private function updateOldContentPosition($newPositionId): void
     {
         $sql = "UPDATE contents SET id_position = NULL WHERE id_position = :newPositionId";
@@ -378,7 +437,12 @@ class EditManager extends Manager
         $req->execute(['newPositionId' => $newPositionId]);
     }
 
-
+    /**
+     * Insert a new content into the database.
+     *
+     * @param Content $content The content object to insert.
+     * @return bool True if the insertion was successful, false otherwise.
+     */
     public function insertContent(Content $content): bool
     {
         $sql = "INSERT INTO contents (
@@ -404,10 +468,10 @@ class EditManager extends Manager
         try {
             $req = $this->dbManager->db->prepare($sql);
 
-            // Si getPositionId est égal à 0, affecte NULL à la place
+            // Set position ID to NULL if it's 0
             $positionId = ($content->getPosition()->getId() === 0) ? null : $content->getPosition()->getId();
 
-            // Mettre à jour la position de l'ancien contenu à NULL avant d'insérer le nouveau contenu
+            // Update the position of the old content to NULL before inserting the new content
             $this->updateOldContentPosition($positionId);
 
             return $req->execute([
@@ -419,13 +483,17 @@ class EditManager extends Manager
                 'contentTypeId' => $content->getContentType()->getId()
             ]);
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
-
+    /**
+     * Delete a content by its ID from the database.
+     *
+     * @param int $contentId The ID of the content to delete.
+     * @return bool True if the deletion was successful, false otherwise.
+     */
     public function deleteContentById($contentId): bool
     {
         $sql = "DELETE FROM contents WHERE id = :contentId";
@@ -434,17 +502,21 @@ class EditManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
             $req->execute(['contentId' => $contentId]);
 
-            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            // Check the number of affected rows to confirm deletion
             $rowCount = $req->rowCount();
 
             return $rowCount > 0;
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Retrieve all navigations from the database.
+     *
+     * @return array|null An array of Navigation objects representing all navigations in the database, or null if an error occurs.
+     */
     public function getAllNavigations(): ?array
     {
         $listNavigations = [];
@@ -465,6 +537,12 @@ class EditManager extends Manager
         }
     }
 
+    /**
+     * Retrieve a navigation by its ID from the database.
+     *
+     * @param int $id The ID of the navigation to retrieve.
+     * @return Navigation|null A Navigation object representing the retrieved navigation, or null if not found or an error occurs.
+     */
     public function getNavigationById($id): ?Navigation
     {
         $sql = "SELECT n.*, p.id AS page_id, p.page_name, p.is_home_page, p.is_published AS p_is_published FROM navigations n
@@ -491,21 +569,24 @@ class EditManager extends Manager
 
                     return $nav;
                 } else {
-                    // Aucun résultat trouvé pour l'ID spécifié
+                    // No result found for the specified ID
                     return null;
                 }
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
     }
 
+    /**
+     * Update a navigation in the database.
+     *
+     * @param Navigation $nav The navigation object to update.
+     * @return bool True if the update was successful, false otherwise.
+     */
     public function updateNavigation(Navigation $nav): bool
     {
         $sql = "UPDATE navigations
@@ -523,7 +604,7 @@ class EditManager extends Manager
         try {
             $req = $this->dbManager->db->prepare($sql);
 
-            // Si getPositionId est égal à 0, affecte NULL à la place
+            // Set position ID to NULL if it's 0
             $positionId = ($nav->getIdPosition() === 0) ? null : $nav->getIdPosition();
 
             return $req->execute([
@@ -538,12 +619,17 @@ class EditManager extends Manager
 
             
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Insert a new navigation into the database.
+     *
+     * @param Navigation $nav The navigation object to insert.
+     * @return bool True if the insertion was successful, false otherwise.
+     */
     public function insertNavigation(Navigation $nav): bool
     {
         $sql = "INSERT INTO navigations (
@@ -567,7 +653,7 @@ class EditManager extends Manager
         try {
             $req = $this->dbManager->db->prepare($sql);
 
-            // Si getIdPosition est égal à 0, affecte NULL à la place
+            // Set position ID to NULL if it's 0
             $positionId = ($nav->getIdPosition() === 0) ? null : $nav->getIdPosition();
 
             return $req->execute([
@@ -578,12 +664,17 @@ class EditManager extends Manager
                 'positionId' => $positionId
             ]);
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Delete a navigation by its ID from the database.
+     *
+     * @param int $navId The ID of the navigation to delete.
+     * @return bool True if the deletion was successful, false otherwise.
+     */
     public function deleteNavById($navId): bool
     {
         $sql = "DELETE FROM navigations WHERE id = :navId";
@@ -592,17 +683,21 @@ class EditManager extends Manager
             $req = $this->dbManager->db->prepare($sql);
             $req->execute(['navId' => $navId]);
 
-            // Vérifiez le nombre de lignes affectées pour confirmer la suppression
+            // Check the number of affected rows to confirm deletion
             $rowCount = $req->rowCount();
 
             return $rowCount > 0;
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return false;
         }
     }
 
+    /**
+     * Retrieve all positions along with their associated pages from the database.
+     *
+     * @return array|null An array of Position objects representing all positions with their associated pages, or null if an error occurs.
+     */
     public function getAllPositions(): ?array
     {
         $sql = "SELECT 
@@ -637,63 +732,63 @@ class EditManager extends Manager
 
                 return $listPositions;
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
         return null;
     }
     
+    /**
+     * Retrieves a position by its ID from the database.
+     *
+     * @param int $positionId The ID of the position to retrieve
+     * @throws \PDOException to handle database errors
+     * @return Position|null The retrieved position or null if not found
+     */
     public function getPositionById($positionId): ?Position
-{
-    $sql = "SELECT 
-                p.id,
-                p.position_number,
-                pg.id AS page_id,
-                pg.page_name,
-                pg.is_home_page,
-                pg.is_published
-            FROM positions p
-            INNER JOIN
-                pages pg ON p.id_page = pg.id
-            WHERE p.id = :positionId";
+    {
+        $sql = "SELECT 
+                    p.id,
+                    p.position_number,
+                    pg.id AS page_id,
+                    pg.page_name,
+                    pg.is_home_page,
+                    pg.is_published
+                FROM positions p
+                INNER JOIN
+                    pages pg ON p.id_page = pg.id
+                WHERE p.id = :positionId";
 
-    try {
-        $req = $this->dbManager->db->prepare($sql);
+        try {
+            $req = $this->dbManager->db->prepare($sql);
 
-        if ($req->execute(['positionId' => $positionId])) {
-            $result = $req->fetch(\PDO::FETCH_ASSOC);
+            if ($req->execute(['positionId' => $positionId])) {
+                $result = $req->fetch(\PDO::FETCH_ASSOC);
 
-            if ($result !== false) {
-                $position = new Position($result);
-                $page = new Page([
-                    'id' => $result['page_id'],
-                    'page_name' => $result['page_name'],
-                    'is_home_page' => $result['is_home_page'],
-                    'is_published' => $result['is_published']
-                ]);
-                $position->setPage($page);
+                if ($result !== false) {
+                    $position = new Position($result);
+                    $page = new Page([
+                        'id' => $result['page_id'],
+                        'page_name' => $result['page_name'],
+                        'is_home_page' => $result['is_home_page'],
+                        'is_published' => $result['is_published']
+                    ]);
+                    $position->setPage($page);
 
-                return $position;
+                    return $position;
+                } else {
+                    return null;
+                }
             } else {
-                // La position avec l'ID donné n'existe pas
                 return null;
             }
-        } else {
-            // Afficher ou enregistrer l'erreur selon les besoins
-            var_dump($req->errorInfo());
+        } catch (\PDOException $e) {
+            echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
-    } catch (\PDOException $e) {
-        // Gérer l'exception selon les besoins
-        echo "Erreur PDO : " . $e->getMessage();
-        return null;
     }
-}
 
 }

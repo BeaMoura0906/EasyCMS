@@ -4,17 +4,32 @@ namespace EasyCMS\src\Controller;
 
 use EasyCMS\src\Model\IndexManager;
 
+/**
+ * Class IndexController
+ * 
+ * This class represents the controller for the index view.
+ */
 class IndexController extends Controller
 {
+    /**
+     * @var IndexManager Instance of the IndexManager responsible for managing index operations.
+     */
     private $_manager;
-    private $userManager;
 
+    /**
+     * Constructor method.
+     * Instantiates a new IndexManager and calls the parent constructor.
+     */
     public function __construct()
     {
         $this->_manager = new IndexManager();
         parent::__construct();
     }
 
+    /**
+     * Default action method.
+     * Renders the index view based on whether the user is logged in or not.
+     */
     public function defaultAction()
     {
         if( isset($_SESSION['userId'] ) ){
@@ -25,6 +40,10 @@ class IndexController extends Controller
         
     }
 
+    /**
+     * Action method for rendering the login form.
+     * Renders the index view with a flag indicating that the login form should be displayed.
+     */
     public function loginAction()
     {
         $loginSpace = true;
@@ -34,6 +53,11 @@ class IndexController extends Controller
         $this->render('index', $data);
     }
 
+    /**
+     * Action method for verifying login credentials.
+     * Verifies the provided login credentials and redirects to the profile page upon successful login.
+     * Otherwise, displays an error message and the login form.
+     */
     public function verifyLoginAction()
     {
         $data=[];
@@ -70,6 +94,10 @@ class IndexController extends Controller
 
     }
 
+    /**
+     * Action method for logging out the user.
+     * Destroys session and redirects to the home page.
+     */
     public function logoutAction()
     {
         session_destroy();

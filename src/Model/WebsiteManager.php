@@ -8,8 +8,19 @@ use EasyCMS\src\Model\Entity\ContentType;
 use EasyCMS\src\Model\Entity\Navigation;
 use EasyCMS\src\Model\Entity\Position;
 
+
+/**
+ * Class WebsiteManager
+ * 
+ * The WebsiteManager class handles database operations related to website content and navigation.
+ */
 class WebsiteManager extends Manager 
 {
+    /**
+     * Retrieve the published home page from the database.
+     *
+     * @return Page|null The Page object representing the published home page, or null if not found or an error occurs.
+     */
     public function getPublishedHomePage()
     {        
         $sql = "SELECT * FROM pages WHERE is_home_page = 1 AND is_published = 1";
@@ -23,7 +34,12 @@ class WebsiteManager extends Manager
         }
     }
 
-
+    /**
+     * Retrieve all published contents associated with a specific page from the database.
+     *
+     * @param int $idPage The ID of the page to retrieve contents for.
+     * @return array|null An array of Content objects if contents are found, or null if no contents are found or an error occurs.
+     */
     public function getPublishedContentsByIdPage($idPage): ?array
     {
         $sql = "SELECT
@@ -87,17 +103,19 @@ class WebsiteManager extends Manager
 
                 return $listContents;
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
     }
 
+    /**
+     * Retrieve all published navigations from the database.
+     *
+     * @return array|null An array of Navigation objects if navigations are found, or null if no navigations are found or an error occurs.
+     */
     public function getAllPublishedNav()
     {
         $sql = "SELECT 
@@ -134,17 +152,20 @@ class WebsiteManager extends Manager
                 return $listNavigations;
                 
             } else {
-                // Afficher ou enregistrer l'erreur selon les besoins
-                var_dump($req->errorInfo());
                 return null;
             }
         } catch (\PDOException $e) {
-            // Gérer l'exception selon les besoins
             echo "Erreur PDO : " . $e->getMessage();
             return null;
         }
     }
     
+    /**
+     * Retrieve a page from the database by its ID.
+     *
+     * @param int $id The ID of the page to retrieve.
+     * @return Page|null The Page object if found, or null if not found or an error occurs.
+     */
     public function getPageById($id): ?Page
     {
         $sql = "SELECT * FROM pages WHERE id=:id";

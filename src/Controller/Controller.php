@@ -6,11 +6,17 @@ use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use Twig\Extension\DebugExtension;
 
+/**
+ * This file contains the definition of the abstract Controller class.
+ */
 abstract class Controller
 {
     protected $twig; 
     protected $pathView = 'src/View';
 
+    /**
+     * Constructor method to set up the Twig environment and process the action.
+     */
     public function __construct()
     {
 
@@ -31,8 +37,16 @@ abstract class Controller
 
     }
 
+    /**
+     * Abstract method to be implemented by classes extending this Controller.
+     */
     abstract public function defaultAction();
 
+    /**
+     * Renders the specified view using Twig and the provided data.
+     * @param string $view The name of the view
+     * @param array $data The data to be passed to the view
+     */
     protected function render($view, $data=[])
     {   
         

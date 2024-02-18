@@ -1,33 +1,53 @@
 <html lang="en">
 <head>
+    <!-- Meta tags for character set and viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Bootstrap JavaScript -->
     <script type="module" src="assets/js/bootstrap.min.js"></script>
+
+    <!-- Page title -->
     <title>Your Website</title>
 </head>
 
 <body>
+    <!-- Back to dashboard link -->
     <div class="container-fluid text-end p-2">
         <a class=" link-dark link-underline-opacity-0 link-underline-opacity-75-hover" href="index.php?controller=profile">Retour au <strong>Tableau de bord</strong></a>
     </div>
-    
+
+    <!-- Header section -->
     <header>
+        <!-- Navbar -->
         <nav class="navbar navbar-expand-lg bg-primary-subtle">
             <div class="container-fluid">
+                <!-- Navbar Brand -->
                 <a class="navbar-brand" href="index.php?controller=website">Website</a>
+
+                <!-- Navbar Toggler -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
                 </button>
+
+                <!-- Navbar Links -->
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
                     {% for nav in listNav %}
+                        <!-- Loop through navigation items -->
                         {% if nav.page.isHomePage == 1 %}
+                            <!-- If the navigation item is for the home page -->
                             <li class="nav-item">
                                 <a class="nav-link" href="index.php?controller=website"><strong>Accueil</strong></a>
                             </li>
                         {% elseif nav.page.isHomePage == 0 %}
+                            <!-- If the navigation item is for a regular page -->
                             <li class="nav-item">
                                 <a class="nav-link" href="index.php?controller=website&action=selectPage&pageId={{ nav.page.id }}">{{ nav.navName }}</a>
                             </li>
@@ -39,7 +59,10 @@
             </div>
         </nav>        
     </header>
+
+    <!-- Main content section -->
     <main class="container">
+        <!-- Display content for the home page if defined -->
         {% if homePage is defined %}
             <div class="row">
                 <div class="col-12">
@@ -47,7 +70,9 @@
                 </div>
             </div>
             <div class="row">
+                <!-- Loop through contents of the home page -->
                 {% for content in listContentsOfHomePage %}
+                    <!-- Determine the type of content and display accordingly -->
                     {% if content.contentType.id == 1 %}
                     <div class="col-12">
                         <h3 class="m-3">{{ content.contentDescription }}</h3>
@@ -68,6 +93,8 @@
                 {% endfor %}
             </div>        
         {% endif %}
+
+        <!-- Display content for a regular page if defined -->
         {% if page is defined %}
             <div class="row">
                 <div class="col-12">
@@ -76,7 +103,9 @@
             </div>
             <div class="row">
                 <div class="col-12">
+                    <!-- Loop through contents of the regular page -->
                     {% for content in listContents %}
+                        <!-- Determine the type of content and display accordingly -->
                         {% if content.contentType.id == 1 %}
                             <h3 class="m-3">{{ content.contentDescription }}</h3>
                         {% elseif content.contentType.id == 3 %}
@@ -94,6 +123,3 @@
         
     </main>
 </body>
-
-
-
