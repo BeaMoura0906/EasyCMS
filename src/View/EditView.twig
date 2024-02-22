@@ -49,8 +49,12 @@
 
         </div>
 
-        <!-- Page selection for editing -->
         {% if listPages is defined %}
+            {% include "EditPages.twig" with {'listPages': listPages} %}
+        {% endif %}      
+
+        <!-- Page selection for editing -->
+        {% if x is defined %}
             <div class="row text-start mt-3">
                 <div class="col-4 p-2">
                     <h5 class="p-2">Selectionnez la page à modifier</h5>
@@ -247,9 +251,9 @@
                             <input type="text" class="form-control" id="contentNameId" name="contentName" value="{{ selectedContent.getContentName }}" required>
                         </div>
                         <!-- Input field for content description -->
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <label for="contentDescriptionId" class="form-label">Le contenu</label>
-                            <input type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="{{ selectedContent.getContentDescription }}" required>
+                            <textarea rows="10" class="form-control" id="contentDescriptionId" name="contentDescription" value="{{ selectedContent.getContentDescription }}" required></textarea>
                         </div>
                         <!-- Dropdown for selecting content type -->
                         <div class="col-md-12">
@@ -371,7 +375,7 @@
                             <!-- Input field for content description -->
                             <div class="col-md-8">
                                 <label for="contentDescriptionId" class="form-label">Le contenu</label>
-                                <input type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="" required>
+                                <textarea type="text" class="form-control" id="contentDescriptionId" name="contentDescription" value="" required></textarea>
                             </div>
                             <!-- Dropdown menu for selecting content type -->
                             <div class="col-md-12">

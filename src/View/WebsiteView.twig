@@ -109,9 +109,11 @@
                         {% if content.contentType.id == 1 %}
                             <h3 class="m-3">{{ content.contentDescription }}</h3>
                         {% elseif content.contentType.id == 3 %}
-                            <img src="{{ content.contentDescription }}" class="img-fluid m-3" alt="{{ content.contentName }}"/>
+                            <img src="assets/images/{{ content.contentDescription }}" class="img-fluid m-3" alt="{{ content.contentName }}" style="width: 40em; height: auto;"/>
                         {% elseif content.contentType.id == 4 %}
-                            <a href="{{ content.contentDescription }}" class="link-underline-primary m-3">{{ content.contentName }}</a>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <img src="assets/images/{{content.contentDescription}}" class="m-3" alt="{{content.contentName}}" style="width: 40em; height: auto;"/>
+                            </div>
                         {% elseif content.contentType.id == 2 %}
                             <article class="m-3">{{ content.contentDescription }}</article>
                         {% endif %}

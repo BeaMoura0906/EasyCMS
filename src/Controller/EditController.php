@@ -9,7 +9,7 @@ use EasyCMS\src\Model\Entity\Page;
 use EasyCMS\src\Model\Entity\Content;
 use EasyCMS\src\Model\Entity\Navigation;
 use EasyCMS\src\Model\Entity\Position;
-
+use EasyCMS\src\Model\WebsiteManager;
 
 /**
  * Class EditController
@@ -23,6 +23,8 @@ class EditController extends Controller
      */
     private $_manager;
 
+    private $websiteManager;
+
     /**
      * Constructor
      * 
@@ -31,6 +33,7 @@ class EditController extends Controller
     public function __construct()
     {
         $this->_manager = new EditManager();
+        $this->websiteManager = new WebsiteManager();
                
         parent::__construct();
     }
@@ -58,12 +61,51 @@ class EditController extends Controller
     public function editPageAction()
     {
         if( $listPages = $this->_manager->getAllPages() ){
+            $listContentsPages = $this->_manager->getAllContents();
+            $listPositionsPages = $this->_manager->getAllPositions();
+            $listContentTypesPages = $this->_manager->getAllContentTypes();
             $data = [
-                'listPages' => $listPages
+                'listPages' => $listPages,
+                'listContentsPages' => $listContentsPages,
+                'listPositionsPages' => $listPositionsPages,
+                'listContentTypesPages' => $listContentTypesPages
             ]; 
             $this->render('edit', $data);
         }
     }
+
+    /**
+     * Action to publish quickly a page.
+     */
+    public function publishPageAction()
+    {
+        if( isset($_REQUEST['pageId'])){
+            $page = $this->_manager->getPageById($_REQUEST['pageId']);
+            if( isset($_REQUEST['toPublish']) ){
+                $page->setIsPublished(1);
+            } else {
+                $page->setIsPublished(0);
+            }
+    
+            if( $page = $this->_manager->updatePage($page) ){
+                if( $listPages = $this->_manager->getAllPages() ){
+                    $listContentsPages = $this->_manager->getAllContents();
+                    $listPositionsPages = $this->_manager->getAllPositions();
+                    $listContentTypesPages = $this->_manager->getAllContentTypes();
+                    $data = [
+                        'listPages' => $listPages,
+                        'listContentsPages' => $listContentsPages,
+                        'listPositionsPages' => $listPositionsPages,
+                        'listContentTypesPages' => $listContentTypesPages
+                    ]; 
+                    $this->render('edit', $data);
+                }
+            }
+        }
+
+        
+    }
+
 
     /**
      * Action to update a page.
