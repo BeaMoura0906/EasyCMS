@@ -66,3 +66,9 @@ Ce projet a été réalisé individuellement dans le cadre pédagogique.
 ![Interface d'édition de contenu - Easy CMS](screens/EditContentPage.jpg)
 
 ![Panneau d'administration - Easy CMS](screens/AdminPanelPage.jpg)
+
+## Auteur 
+
+Beatriz Moura - Développement initial | @BeaMoura0906
+
+Ce projet a été réalisé en cours de formation dans le cadre d'un BTS SIO option SLAM (2ème année).
