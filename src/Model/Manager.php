@@ -4,55 +4,111 @@ namespace EasyCMS\src\Model;
 
 use EasyCMS\src\Classes\dbConnect;
 
+
 /**
  * Class Manager
- *
- * The base manager class responsible for handling database connections.
+ * Base class for managing database connections and common functionalities.
  */
 class Manager 
 {
-    /** @var string The Data Source Name (DSN) for connecting to the database. */
-    private $_dsn = 'mysql:host=localhost;dbname=';
-
-    /** @var string The name of the database. */
-    private $_dbname;
-
-    /** @var string The login username for the database connection. */
-    private $_dblogin;
-
-    /** @var string The password for the database connection. */
-    private $_dbpassword; 
-
-    /** @var dbConnect The database manager instance. */
-    protected $dbManager;
-    
     /**
-     * Manager constructor.
-     *
-     * Initializes the Manager object and establishes a database connection.
+     * Database connection DSN (Data Source Name).
+     * @var string
+     */
+    private $dsn = 'mysql:host=localhost;dbname=';
+
+    /**
+     * Database hostname.
+     * @var string
+     */
+    private $dbhost;
+
+    /**
+     * Database name.
+     * @var string
+     */
+    private $dbname;
+
+    /**
+     * Database login username.
+     * @var string
+     */
+    private $dblogin;
+
+    /**
+     * Database login password.
+     * @var string
+     */
+    private $dbpassword; 
+
+    /**
+     * Database manager object.
+     * @var dbConnect
+     */
+    protected $dbManager;
+
+    /**
+     * Constructor to initialize the Manager object and establish a database connection.
      */
     public function __construct()
     {
-        // Set database credentials based on the server's hostname
-        if( strstr($_SERVER['HTTP_HOST'], '51.178.86.117') ){
-            $this->_dbname = 'beatriz_2';
-            $this->_dblogin = 'beatriz';
-            $this->_dbpassword = 'Eg;ah9do';
+        $this->setEnvVarWithDbCredentials();
+
+        //Configure for the remote server within add .env file to retreive the remote dbname, dblogin and dbpassword
+        if( strstr($_SERVER['HTTP_HOST'], $_ENV['DB_HOST'] )){
+            $this->dbname = getenv('DB_NAME');
+            $this->dblogin = getenv('DB_LOGIN');
+            $this->dbpassword = getenv('DB_PASSWORD');
         } else {
-            $this->_dbname = 'easycms';
-            $this->_dblogin = 'root';
-            $this->_dbpassword = '';
+            $this->dbname = 'worga';
+            $this->dblogin = 'root';
+            $this->dbpassword = '';
         }
 
-        // Build the DSN string for the database connection
-        $this->_dsn .= $this->_dbname . ';charset=utf8';
+        // Build DSN for the database connection
+        $this->dsn .= $this->dbname . ';charset=utf8';
         
         // Establish a database connection using the dbConnect class
         $this->dbManager = dbConnect::getDb(
-            $this->_dsn, 
-            $this->_dblogin, 
-            $this->_dbpassword
+            $this->dsn, 
+            $this->dblogin, 
+            $this->dbpassword
         );
     }
 
+    /**
+     * Converts a camelCase string to snake_case. 
+     */
+    protected function convertCamelCaseToSnakeCase($string): string
+    {
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $string));
+    }
+
+    /**
+     * Sets environment variables with database credentials.
+     */
+    private function setEnvVarWithDbCredentials()
+    {
+        $envPath = dirname ( __DIR__ ) . '/../.env'; 
+        
+        if (!file_exists($envPath)) {
+            return;
+        }
+
+        $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES); 
+        foreach ($lines as $line) { 
+            if (strpos(trim($line), '#') === 0) {
+                continue;
+            }
+
+            list($name, $value) = explode('=', $line, 2);
+            $name = trim($name); 
+            $value = trim($value);
+
+            if (!array_key_exists($name, $_ENV)) {
+                putenv(sprintf('%s=%s', $name, $value));
+                $_ENV[$name] = $value;
+            }
+        }
+    }
 }
